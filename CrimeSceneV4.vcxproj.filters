@@ -63,6 +63,12 @@
     <ClInclude Include="RestApi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="InventoryFileIO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Physics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CrimeScene.cpp">
@@ -104,31 +110,21 @@
     <ClCompile Include="RestApi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="InventoryFileIO.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Physics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\objectPolylight.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\objectPolylight.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\spotlightCone.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\spotlightCone.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\default.vert">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\default.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\cubemap.frag">
-      <Filter>Shaders</Filter>
-    </None>
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\cubemap.vert">
-      <Filter>Shaders</Filter>
-    </None>
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\cubemap.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\cubemap.vert" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\default.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\default.vert" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\spotlightCone.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\objectPolylight.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\objectPolylight.vert" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\spotlightCone.vert" />
   </ItemGroup>
 </Project>

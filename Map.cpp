@@ -19,9 +19,9 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
-#define TEXTURE_FOLDER "data/CrimeSceneV3/Textures/"
-#define MODEL_FOLDER "data/CrimeSceneV3/Models/"
-#define THEME_FOLDER "data/CrimeSceneV3/Themes/"
+#define TEXTURE_FOLDER "data/CrimeSceneV4/Textures/"
+#define MODEL_FOLDER "data/CrimeSceneV4/Models/"
+#define THEME_FOLDER "data/CrimeSceneV4/Themes/"
 #define PLAYER_HEIGHT 1.7f
 
 #pragma region cubemap vertices
@@ -257,7 +257,7 @@ void Map::loadCubemap(std::string textureFolder)
 								textureFolder + "/negy.jpg", textureFolder + "/posz.jpg", textureFolder + "/negz.jpg" };
 
 	//Load the cubemap shader
-	ShaderProgram* shader = new ShaderProgram("data/CrimeSceneV3/Shaders/cubemap.vert", "data/CrimeSceneV3/Shaders/cubemap.frag");
+	ShaderProgram* shader = new ShaderProgram("data/CrimeSceneV4/Shaders/cubemap.vert", "data/CrimeSceneV4/Shaders/cubemap.frag");
 	shader->bindAttributeLocation("a_position", 0);
 	shader->link();
 

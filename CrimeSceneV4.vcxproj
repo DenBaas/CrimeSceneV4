@@ -11,9 +11,9 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{47788776-6E0F-4129-9297-398044058B61}</ProjectGuid>
+    <ProjectGuid>{E30347A0-74F4-4939-936E-F465C8470C4E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>CrimeSceneV3</RootNamespace>
+    <RootNamespace>CrimeSceneV4</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -76,13 +76,13 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)\Libraries\bullet3\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -112,10 +112,12 @@
     <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="CrimeScene.h" />
     <ClInclude Include="InspectObject.h" />
+    <ClInclude Include="InventoryFileIO.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapObject.h" />
     <ClInclude Include="MapTiles.h" />
     <ClInclude Include="Photo.h" />
+    <ClInclude Include="Physics.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="RestApi.h" />
     <ClInclude Include="SharedInfo.h" />
@@ -127,10 +129,12 @@
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="CrimeScene.cpp" />
     <ClCompile Include="InspectObject.cpp" />
+    <ClCompile Include="InventoryFileIO.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapObject.cpp" />
     <ClCompile Include="MapTiles.cpp" />
     <ClCompile Include="Photo.cpp" />
+    <ClCompile Include="Physics.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="RestApi.cpp" />
     <ClCompile Include="SharedInfo.cpp" />
@@ -138,14 +142,14 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\cubemap.frag" />
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\cubemap.vert" />
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\default.frag" />
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\default.vert" />
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\spotlightCone.frag" />
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\objectPolylight.frag" />
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\objectPolylight.vert" />
-    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\spotlightCone.vert" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\cubemap.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\cubemap.vert" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\default.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\default.vert" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\spotlightCone.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\objectPolylight.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\objectPolylight.vert" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\spotlightCone.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
