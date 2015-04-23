@@ -160,7 +160,7 @@ void CrimeScene::init()
 	toolboxPanel = new ToolboxPanel(this);
 
 	map = new Map(this);
-	if (!map->load("data/CrimeSceneV3/CrimeScenes/" + this->mapFilename, player))
+	if (!map->load("data/CrimeSceneV4/CrimeScenes/" + this->mapFilename, player))
 		consoleExit();
 
 	irrklang::ISound* music = map->getBackgroundMusic();
@@ -468,7 +468,7 @@ Last edit: <name> - dd-mm-yyyy
 */
 void CrimeScene::initShaders()
 {
-	shaderDefault = new Shader<Uniforms>("data/CrimeSceneV3/Shaders/default.vert", "data/CrimeSceneV3/Shaders/default.frag");
+	shaderDefault = new Shader<Uniforms>("data/CrimeSceneV4/Shaders/default.vert", "data/CrimeSceneV4/Shaders/default.frag");
 	shaderDefault->bindAttributeLocation("a_position", 0);
 	shaderDefault->bindAttributeLocation("a_normal", 1);
 	shaderDefault->bindAttributeLocation("a_texcoord", 2);
@@ -493,7 +493,7 @@ void CrimeScene::initShaders()
 	shaderDefault->registerUniform(Uniforms::wandDirection, "wandDirection");
 	shaderDefault->registerUniform(Uniforms::s_texture, "s_texture");
 
-	shaderSpotlightCone = new Shader<SpotlightConeUniforms>("data/CrimeSceneV3/Shaders/spotlightCone.vert", "data/CrimeSceneV3/Shaders/spotlightCone.frag");
+	shaderSpotlightCone = new Shader<SpotlightConeUniforms>("data/CrimeSceneV4/Shaders/spotlightCone.vert", "data/CrimeSceneV4/Shaders/spotlightCone.frag");
 	shaderSpotlightCone->bindAttributeLocation("a_position", 0);
 	shaderSpotlightCone->bindAttributeLocation("a_normal", 1);
 	shaderSpotlightCone->link();
@@ -501,7 +501,7 @@ void CrimeScene::initShaders()
 	shaderSpotlightCone->registerUniform(SpotlightConeUniforms::wandModelProjectionMatrix, "wandModelProjectionMatrix");
 	shaderSpotlightCone->registerUniform(SpotlightConeUniforms::wandPosition, "wandPosition");
 
-	shaderPolylight = new Shader<Uniforms>("data/CrimeSceneV3/Shaders/objectPolylight.vert", "data/CrimeSceneV3/Shaders/objectPolylight.frag");
+	shaderPolylight = new Shader<Uniforms>("data/CrimeSceneV4/Shaders/objectPolylight.vert", "data/CrimeSceneV4/Shaders/objectPolylight.frag");
 	shaderPolylight->bindAttributeLocation("a_position", 0);
 	shaderPolylight->bindAttributeLocation("a_normal", 1);
 	shaderPolylight->bindAttributeLocation("a_texcoord", 2);
