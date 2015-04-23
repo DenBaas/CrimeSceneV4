@@ -1,0 +1,153 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{47788776-6E0F-4129-9297-398044058B61}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>CrimeSceneV3</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v120</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\CaveBuildProperties.props" />
+    <Import Project="..\..\CaveLib.props" />
+    <Import Project="..\..\CaveLibPlugin.props" />
+    <Import Project="..\..\Glew.props" />
+    <Import Project="..\..\Json.props" />
+    <Import Project="..\..\Zlib.props" />
+    <Import Project="..\..\VrLib.props" />
+    <Import Project="..\..\Distribute.props" />
+    <Import Project="..\..\Assimp.props" />
+    <Import Project="..\..\irrKlang.props" />
+    <Import Project="..\..\libpng.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\CaveBuildProperties.props" />
+    <Import Project="..\..\CaveLib.props" />
+    <Import Project="..\..\CaveLibPlugin.props" />
+    <Import Project="..\..\Glew.props" />
+    <Import Project="..\..\Json.props" />
+    <Import Project="..\..\Zlib.props" />
+    <Import Project="..\..\VrLib.props" />
+    <Import Project="..\..\Distribute.props" />
+    <Import Project="..\..\Assimp.props" />
+    <Import Project="..\..\irrKlang.props" />
+    <Import Project="..\..\libpng.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>irrKlang.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="AssimpMesh.h" />
+    <ClInclude Include="AssimpModel.h" />
+    <ClInclude Include="CrimeScene.h" />
+    <ClInclude Include="InspectObject.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="MapObject.h" />
+    <ClInclude Include="MapTiles.h" />
+    <ClInclude Include="Photo.h" />
+    <ClInclude Include="Player.h" />
+    <ClInclude Include="RestApi.h" />
+    <ClInclude Include="SharedInfo.h" />
+    <ClInclude Include="ToolboxPanel.h" />
+    <ClInclude Include="Utils.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="AssimpMesh.cpp" />
+    <ClCompile Include="AssimpModel.cpp" />
+    <ClCompile Include="CrimeScene.cpp" />
+    <ClCompile Include="InspectObject.cpp" />
+    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="MapObject.cpp" />
+    <ClCompile Include="MapTiles.cpp" />
+    <ClCompile Include="Photo.cpp" />
+    <ClCompile Include="Player.cpp" />
+    <ClCompile Include="RestApi.cpp" />
+    <ClCompile Include="SharedInfo.cpp" />
+    <ClCompile Include="ToolboxPanel.cpp" />
+    <ClCompile Include="Utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\cubemap.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\cubemap.vert" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\default.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\default.vert" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\spotlightCone.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\objectPolylight.frag" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\objectPolylight.vert" />
+    <None Include="..\..\..\Runtime\data\CrimeSceneV3\Shaders\spotlightCone.vert" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
