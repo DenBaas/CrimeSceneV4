@@ -21,7 +21,7 @@ class MapObject
 	glm::mat4 modelMatrix;
 
 public:
-	MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation, float scale, bool interactable, bool standardVisible, std::string description);
+	MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation, float scale, bool interactable, bool standardVisible, std::string description, float mass);
 	~MapObject();
 
 	Bbox getBoundingBox(glm::mat4* viewMatrix);

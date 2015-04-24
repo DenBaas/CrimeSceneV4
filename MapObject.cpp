@@ -18,7 +18,7 @@ description = text that appears when the object is selected
 Author: Bas Rops - 25-04-2014
 Last edit: Bas Rops - 09-05-2014
 */
-MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation, float scale, bool interactable, bool standardVisible, std::string description)
+MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation, float scale, bool interactable, bool standardVisible, std::string description, float mass)
 {
 	this->model = model;
 	this->position = position;
