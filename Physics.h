@@ -39,11 +39,12 @@ public:
 	btBvhTriangleMeshShape*					levelShape;
 	btCollisionObject *						level;
 	btRigidBody *							playerBody;
+	std::vector<btRigidBody*>				bodysInWorld;
 
 	void PlayerInit(glm::vec4 position, float rotationY);
 	void WorldInit();
 	void UpdateWorld(const float timeFctr, const glm::vec3 movement,const float newRotation);
-	void InitObjects();
+	int AddObjectToWorld(btRigidBody* rigidBody);
 
 private:
 	DebugDrawer * m_pDebugDrawer;

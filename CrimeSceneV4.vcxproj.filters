@@ -63,13 +63,13 @@
     <ClInclude Include="RestApi.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="InventoryFileIO.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Physics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="DebugDrawer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResultsFileIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -113,13 +113,13 @@
     <ClCompile Include="RestApi.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="InventoryFileIO.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Physics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DebugDrawer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ResultsFileIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -113,7 +113,7 @@
     <ClInclude Include="CrimeScene.h" />
     <ClInclude Include="DebugDrawer.h" />
     <ClInclude Include="InspectObject.h" />
-    <ClInclude Include="InventoryFileIO.h" />
+    <ClInclude Include="ResultsFileIO.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapObject.h" />
     <ClInclude Include="MapTiles.h" />
@@ -131,7 +131,7 @@
     <ClCompile Include="CrimeScene.cpp" />
     <ClCompile Include="DebugDrawer.cpp" />
     <ClCompile Include="InspectObject.cpp" />
-    <ClCompile Include="InventoryFileIO.cpp" />
+    <ClCompile Include="ResultsFileIO.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapObject.cpp" />
     <ClCompile Include="MapTiles.cpp" />

@@ -14,13 +14,14 @@ enum DataFormat{
 	READABLE = 1
 };
 
-class InventoryFileIO
+class ResultsFileIO
 {
 public:
-	InventoryFileIO();
-	~InventoryFileIO();
+	ResultsFileIO();
+	~ResultsFileIO();
 
-	int save(const DataFormat format, const std::vector<MapObject*> * retrievedObjects);
+	int saveEvidenceItems(const DataFormat format, const std::vector<MapObject*> * retrievedObjects);
+	int saveRouteAndActions(const DataFormat format);
 private:
 	string directory;
 };
