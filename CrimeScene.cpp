@@ -176,6 +176,7 @@ void CrimeScene::init()
 
 	for (int i = 0; i < map->GetMapObjects().size(); i++)
 	{
+		if (map->GetMapObjects()[i]->BoundingBoxPhys != NULL)
 		physics->InitObjects(map->GetMapObjects()[i]->BoundingBoxPhys);
 	}
 
@@ -223,6 +224,7 @@ void CrimeScene::preFrame(double frameTime, double totalTime)
 
 	for (int i = 0; i < map->GetMapObjects().size(); i++)
 	{
+		if (map->GetMapObjects()[i]->BoundingBoxPhys != NULL)
 		map->GetMapObjects()[i]->setPosition(map->GetMapObjects()[i]->getPhysicsObjectPosition());
 	}
 }

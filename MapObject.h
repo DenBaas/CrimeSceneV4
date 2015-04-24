@@ -25,7 +25,7 @@ public:
 	MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation, float scale, bool interactable, bool standardVisible, std::string description, float mass);
 	~MapObject();
 
-	btRigidBody* BoundingBoxPhys;
+	btRigidBody* BoundingBoxPhys = NULL;
 
 	Bbox getBoundingBox(glm::mat4* viewMatrix);
 	Bbox getBoundingBoxWithOutViewMatrix();

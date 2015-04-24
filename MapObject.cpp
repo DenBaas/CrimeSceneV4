@@ -59,7 +59,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 			);
 
 		BoundingBoxPhys = new btRigidBody(cInfo);
-		BoundingBoxPhys->setRestitution(1.0f);
+		BoundingBoxPhys->setRestitution(0.0f);
 		BoundingBoxPhys->setFriction(0.0f);
 	}
 
@@ -463,76 +463,79 @@ Bbox MapObject::getBoundingBoxWithOutViewMatrix()
 	{
 		boundingBox = model->getBoundingBox();
 
+
 		glm::vec3 min = boundingBox.mMin;
 		glm::vec3 max = boundingBox.mMax;
 
 		std::vector<glm::vec4> vertices;
 		//Calculate the axis-aligned bounding box of the object
+		glm::mat4 modelViewMatrix =  this->modelMatrix;
+
+		//Calculate the axis-aligned bounding box of the object
 
 		//Every vertex that needs to be drawn needs to be multiplied by the modelMatrix, so this gets kinda messy
 		//Bottom
-		glm::vec4 vertex = glm::vec4(min.x, min.y, min.z, 1.0f);
+		glm::vec4 vertex = modelViewMatrix * glm::vec4(min.x, min.y, min.z, 1.0f);
 		vertices.push_back(vertex);
-		vertex =  glm::vec4(max.x, min.y, min.z, 1.0f);
-		vertices.push_back(vertex);
-
-		vertex =   glm::vec4(max.x, min.y, min.z, 1.0f);
-		vertices.push_back(vertex);
-		vertex =   glm::vec4(max.x, min.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, min.y, min.z, 1.0f);
 		vertices.push_back(vertex);
 
-		vertex =   glm::vec4(min.x, min.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, min.y, min.z, 1.0f);
 		vertices.push_back(vertex);
-		vertex =   glm::vec4(max.x, min.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, min.y, max.z, 1.0f);
 		vertices.push_back(vertex);
 
-		vertex =   glm::vec4(min.x, min.y, min.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(min.x, min.y, max.z, 1.0f);
 		vertices.push_back(vertex);
-		vertex =   glm::vec4(min.x, min.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, min.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex = modelViewMatrix * glm::vec4(min.x, min.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex = modelViewMatrix * glm::vec4(min.x, min.y, max.z, 1.0f);
 		vertices.push_back(vertex);
 
 		//Sides
-		vertex =   glm::vec4(min.x, min.y, min.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(min.x, min.y, min.z, 1.0f);
 		vertices.push_back(vertex);
-		vertex =   glm::vec4(min.x, max.y, min.z, 1.0f);
-		vertices.push_back(vertex);
-
-		vertex =   glm::vec4(max.x, min.y, min.z, 1.0f);
-		vertices.push_back(vertex);
-		vertex =   glm::vec4(max.x, max.y, min.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(min.x, max.y, min.z, 1.0f);
 		vertices.push_back(vertex);
 
-		vertex =   glm::vec4(max.x, min.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, min.y, min.z, 1.0f);
 		vertices.push_back(vertex);
-		vertex =   glm::vec4(max.x, max.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, max.y, min.z, 1.0f);
 		vertices.push_back(vertex);
 
-		vertex =   glm::vec4(min.x, min.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, min.y, max.z, 1.0f);
 		vertices.push_back(vertex);
-		vertex =   glm::vec4(min.x, max.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, max.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex = modelViewMatrix * glm::vec4(min.x, min.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex = modelViewMatrix * glm::vec4(min.x, max.y, max.z, 1.0f);
 		vertices.push_back(vertex);
 
 		//Top
-		vertex =   glm::vec4(min.x, max.y, min.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(min.x, max.y, min.z, 1.0f);
 		vertices.push_back(vertex);
-		vertex =   glm::vec4(max.x, max.y, min.z, 1.0f);
-		vertices.push_back(vertex);
-
-		vertex =   glm::vec4(max.x, max.y, min.z, 1.0f);
-		vertices.push_back(vertex);
-		vertex =   glm::vec4(max.x, max.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, max.y, min.z, 1.0f);
 		vertices.push_back(vertex);
 
-		vertex =   glm::vec4(min.x, max.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, max.y, min.z, 1.0f);
 		vertices.push_back(vertex);
-		vertex =   glm::vec4(max.x, max.y, max.z, 1.0f);
-		vertices.push_back(vertex);
-
-		vertex =   glm::vec4(min.x, max.y, min.z, 1.0f);
-		vertices.push_back(vertex);
-		vertex =   glm::vec4(min.x, max.y, max.z, 1.0f);
+		vertex = modelViewMatrix * glm::vec4(max.x, max.y, max.z, 1.0f);
 		vertices.push_back(vertex);
 
+		vertex = modelViewMatrix * glm::vec4(min.x, max.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex = modelViewMatrix * glm::vec4(max.x, max.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex = modelViewMatrix * glm::vec4(min.x, max.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex = modelViewMatrix * glm::vec4(min.x, max.y, max.z, 1.0f);
+		vertices.push_back(vertex);
 		glm::vec4 min2 = vertices[0];
 		glm::vec4 max2 = vertices[0];
 

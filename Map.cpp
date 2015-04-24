@@ -196,7 +196,7 @@ bool Map::load(std::string file, Player* player)
 		std::string description = objects[index].get("description", "").asString();
 
 		float mass;
-		if (category == "Walls" || category == "Road" || category == "Traces"  || category == "Roofs")
+		if (category == "Road" || category == "Traces"  || category == "Roofs")
 		{
 			mass = 0.0f;
 		}
