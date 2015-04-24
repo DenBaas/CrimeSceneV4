@@ -176,7 +176,8 @@ void CrimeScene::init()
 
 	for (int i = 0; i < map->GetMapObjects().size(); i++)
 	{
-		physics->AddObjectToWorld(map->GetMapObjects()[i]->BoundingBoxPhys);
+		if (map->GetMapObjects()[i]->BoundingBoxPhys != NULL)
+			physics->AddObjectToWorld(map->GetMapObjects()[i]->BoundingBoxPhys);
 	}
 
 }
@@ -223,9 +224,8 @@ void CrimeScene::preFrame(double frameTime, double totalTime)
 
 	for (int i = 0; i < map->GetMapObjects().size(); i++)
 	{
-		//map->GetMapObjects()[i]->setPosition(map->GetMapObjects()[i]->getPhysicsObjectPosition());
-		btVector3 bttrans = physics->bodysInWorld[i]->getWorldTransform().getOrigin();
-		map->GetMapObjects()[i]->setPosition(glm::vec3(bttrans.x(), bttrans.y(), bttrans.z()));
+		if (map->GetMapObjects()[i]->BoundingBoxPhys != NULL)
+		map->GetMapObjects()[i]->setPosition(map->GetMapObjects()[i]->getPhysicsObjectPosition());
 	}
 }
 
