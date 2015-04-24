@@ -18,7 +18,7 @@ description = text that appears when the object is selected
 Author: Bas Rops - 25-04-2014
 Last edit: Bas Rops - 09-05-2014
 */
-MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation, float scale, bool interactable, bool standardVisible, std::string description)
+MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation, float scale, bool interactable, bool standardVisible, std::string description, float mass)
 {
 	this->model = model;
 	this->position = position;
@@ -37,6 +37,29 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
+
+	Bbox boundingBox = this->getBoundingBoxWithOutViewMatrix();
+	glm::vec3 BboxSize = boundingBox.mMax - boundingBox.mMin;
+
+	btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x, BboxSize.y, BboxSize.z));
+
+	btTransform startTransform;
+	startTransform.setIdentity();
+	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
+
+	btDefaultMotionState* colMotionState = new btDefaultMotionState(startTransform);
+
+	btRigidBody::btRigidBodyConstructionInfo cInfo(
+		mass,
+		colMotionState,
+		colShape,
+		btVector3(0, 0, 0)
+		);
+
+	BoundingBoxPhys = new btRigidBody(cInfo);
+	BoundingBoxPhys->setRestitution(1.0f);
+	BoundingBoxPhys->setFriction(0.0f);
+
 }
 
 /*
@@ -395,6 +418,101 @@ Bbox MapObject::getBoundingBox(glm::mat4* viewMatrix)
 		vertex = modelViewMatrix * glm::vec4(min.x, max.y, min.z, 1.0f);
 		vertices.push_back(vertex);
 		vertex = modelViewMatrix * glm::vec4(min.x, max.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		glm::vec4 min2 = vertices[0];
+		glm::vec4 max2 = vertices[0];
+
+		for each (glm::vec4 vec in vertices)
+		{
+			min2 = glm::min(min2, vec);
+			max2 = glm::max(max2, vec);
+		}
+
+		boundingBox.bounds[0] = boundingBox.mMin = glm::vec3(min2);
+		boundingBox.bounds[1] = boundingBox.mMax = glm::vec3(max2);
+	}
+
+	return boundingBox;
+}
+
+Bbox MapObject::getBoundingBoxWithOutViewMatrix()
+{
+	//TODO optimize, vertices could be a variable[24] in Bbox. Bbox could probably be a variable in MapObject, and then only recalculate every vertex with modelViewMatrix
+	Bbox boundingBox = Bbox();
+
+	if (this->model != nullptr)
+	{
+		boundingBox = model->getBoundingBox();
+
+		glm::vec3 min = boundingBox.mMin;
+		glm::vec3 max = boundingBox.mMax;
+
+		std::vector<glm::vec4> vertices;
+		//Calculate the axis-aligned bounding box of the object
+
+		//Every vertex that needs to be drawn needs to be multiplied by the modelMatrix, so this gets kinda messy
+		//Bottom
+		glm::vec4 vertex = glm::vec4(min.x, min.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =  glm::vec4(max.x, min.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex =   glm::vec4(max.x, min.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(max.x, min.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex =   glm::vec4(min.x, min.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(max.x, min.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex =   glm::vec4(min.x, min.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(min.x, min.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		//Sides
+		vertex =   glm::vec4(min.x, min.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(min.x, max.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex =   glm::vec4(max.x, min.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(max.x, max.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex =   glm::vec4(max.x, min.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(max.x, max.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex =   glm::vec4(min.x, min.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(min.x, max.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		//Top
+		vertex =   glm::vec4(min.x, max.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(max.x, max.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex =   glm::vec4(max.x, max.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(max.x, max.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex =   glm::vec4(min.x, max.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(max.x, max.y, max.z, 1.0f);
+		vertices.push_back(vertex);
+
+		vertex =   glm::vec4(min.x, max.y, min.z, 1.0f);
+		vertices.push_back(vertex);
+		vertex =   glm::vec4(min.x, max.y, max.z, 1.0f);
 		vertices.push_back(vertex);
 
 		glm::vec4 min2 = vertices[0];

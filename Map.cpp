@@ -195,6 +195,16 @@ bool Map::load(std::string file, Player* player)
 		bool standardVisible = objects[index].get("standardVisible", true).asBool();
 		std::string description = objects[index].get("description", "").asString();
 
+		float mass;
+		if (category == "Walls" || category == "Road" || category == "Traces"  || category == "Roofs")
+		{
+			mass = 0.0f;
+		}
+		else
+		{
+			mass = 1.0f;
+		}
+
 		if (loadedModels.count(modelFileName) <= 0)
 		{
 			std::string modelLocation = MODEL_FOLDER + (category != "" ? category + '/' : "") + getFileFolder(modelFileName);
@@ -204,8 +214,10 @@ bool Map::load(std::string file, Player* player)
 		AssimpModel* model = loadedModels[modelFileName];
 
 		mapObjects.push_back(new MapObject(model, glm::vec3(x, y - PLAYER_HEIGHT, -z), glm::vec3(rotationX, rotationY, rotationZ),
-											scale, interactable, standardVisible, description));
+											scale, interactable, standardVisible, description,mass));
 	}
+
+
 #pragma endregion
 
 #pragma region load scene info
