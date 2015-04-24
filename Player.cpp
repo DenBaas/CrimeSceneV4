@@ -22,6 +22,7 @@ Player::Player()
 
 Player::~Player()
 {
+	positions.clear();
 }
 
 /*

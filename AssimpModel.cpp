@@ -30,7 +30,6 @@ AssimpModel::AssimpModel(std::string folderName, std::string fileName, float sca
 
 		aiMatrix4x4 parentMatrix = aiMatrix4x4();
 		loadModel(folderName, model, model->mRootNode, scale, parentMatrix, loadedTextures);
-
 		//Calculate the boundingbox of the full model
 		for (unsigned int i = 0; i < meshes.size(); i++)
 		{

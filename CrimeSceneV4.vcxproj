@@ -111,6 +111,7 @@
     <ClInclude Include="AssimpMesh.h" />
     <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="CrimeScene.h" />
+    <ClInclude Include="DebugDrawer.h" />
     <ClInclude Include="InspectObject.h" />
     <ClInclude Include="InventoryFileIO.h" />
     <ClInclude Include="Map.h" />
@@ -128,6 +129,7 @@
     <ClCompile Include="AssimpMesh.cpp" />
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="CrimeScene.cpp" />
+    <ClCompile Include="DebugDrawer.cpp" />
     <ClCompile Include="InspectObject.cpp" />
     <ClCompile Include="InventoryFileIO.cpp" />
     <ClCompile Include="Map.cpp" />

@@ -119,6 +119,7 @@ CrimeScene::~CrimeScene()
 	delete shaderDefault;
 	delete shaderPolylight;
 	delete shaderSpotlightCone;
+	delete physics;
 
 	soundEngine->drop();
 }
@@ -163,12 +164,15 @@ void CrimeScene::init()
 	map = new Map(this);
 	if (!map->load("data/CrimeSceneV4/CrimeScenes/" + this->mapFilename, player))
 		consoleExit();
-
 	irrklang::ISound* music = map->getBackgroundMusic();
 	if (music != nullptr && music->getIsPaused())
 		music->setIsPaused(false);
 
 	photo = new Photo(1024, 1024);
+	physics = new Physics();
+	
+	//physics->WorldInit(map->GetMapObjects());
+	//physics->PlayerInit(player->getPosition(), player->getRotation());
 }
 
 /*
@@ -199,7 +203,9 @@ Last edit: Bas Rops - 11-06-2014
 */
 void CrimeScene::preFrame(double frameTime, double totalTime)
 {
-
+	clock_t clock_end = clock();
+	GLfloat timeFctr = GLfloat(clock_end - clock_start) / CLOCKS_PER_SEC; // calculate time(s) elapsed since last frame
+	clock_start = clock();
 	toolboxPanel->setSelector(wandRay);
 
 	handleInput(frameTime);
@@ -207,6 +213,7 @@ void CrimeScene::preFrame(double frameTime, double totalTime)
 	//Only update the toolbox when an object is being inspected
 	if (inspectingObject)
 		updateInspectingObject();
+	//physics->UpdateWorld(timeFctr,glm::vec3(1,1,1),0);
 }
 
 /*
@@ -344,7 +351,7 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 
 	//TODO fix color
 	drawWand();
-
+	//physics.world->debugDrawWorld();
 	//Only draw the axis and boundingboxes in debug mode
 #ifdef _DEBUG
 	drawAxis();

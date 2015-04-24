@@ -4,6 +4,7 @@
 #include <glm\glm.hpp>
 #include <windows.h>
 #include <VrLib/ClusterData.h>
+#include <vector>
 #include "SharedInfo.h"
 
 #define MAXMOVEMENTSPEED 0.1f
@@ -29,4 +30,6 @@ public:
 	void update(const glm::vec2 &leftstick, const glm::vec2 &rightstick, float elapsedTime);
 
 	glm::mat4 getPlayerMatrix();
+
+	std::vector<glm::vec4> positions;
 };

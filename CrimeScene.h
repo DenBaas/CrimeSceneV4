@@ -1,5 +1,6 @@
 #pragma once
 #include "Player.h"
+#include "Physics.h"
 //#include "InventoryFileIO.h"
 #include <VrLib\Application.h>
 #include <VrLib\Device.h>
@@ -14,6 +15,7 @@
 #include <glm\glm.hpp>
 #include <GL\glew.h>
 #include <irrKlang.h>
+#include <ctime>
 
 
 
@@ -41,8 +43,6 @@ class CrimeScene: public Application
 	TwoDimensionDevice hydraLeft;
 	TwoDimensionDevice hydraRight;
 
-
-
 	std::string mapFilename;
 	Map* map;
 
@@ -50,6 +50,9 @@ class CrimeScene: public Application
 	glm::mat4 wandMatrix;
 	glm::vec4 wandPosition;
 	glm::vec3 wandTarget;
+
+	Physics* physics;
+	clock_t clock_start;
 public:
 	enum class Uniforms
 	{
