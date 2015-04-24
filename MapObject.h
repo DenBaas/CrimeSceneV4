@@ -2,6 +2,7 @@
 #include <string>
 #include <glm\glm.hpp>
 #include <CaveLib\Shader.h>
+#include <btBulletDynamicsCommon.h>
 
 #include "CrimeScene.h"
 
@@ -24,7 +25,10 @@ public:
 	MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation, float scale, bool interactable, bool standardVisible, std::string description, float mass);
 	~MapObject();
 
+	btRigidBody* BoundingBoxPhys;
+
 	Bbox getBoundingBox(glm::mat4* viewMatrix);
+	Bbox getBoundingBoxWithOutViewMatrix();
 	glm::vec3 getPosition();
 	void setPosition(glm::vec3 newPosition);
 	glm::vec3 getRotation();
