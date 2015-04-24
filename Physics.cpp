@@ -16,7 +16,7 @@ Physics::~Physics()
 	delete playerBody;
 }
 
-void Physics::InitObjects(){
+void Physics::InitObjects(btRigidBody* rigidBody){
 	//put world into bullet
 	//std::vector<glm::vec3> positions;
 	//std::function<void(cModel::cSkeletonBone*)> walkObject;
@@ -51,6 +51,10 @@ void Physics::InitObjects(){
 	//level = new btRigidBody(rbInfo);
 	//world->addCollisionObject(level);
 	//level->activate();
+
+
+	world->addRigidBody(rigidBody);
+
 }
 
 void Physics::WorldInit(){

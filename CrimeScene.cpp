@@ -173,6 +173,12 @@ void CrimeScene::init()
 	
 	physics->WorldInit();
 	physics->PlayerInit(player->getPosition(), player->getRotation());
+
+	for (int i = 0; i < map->GetMapObjects().size(); i++)
+	{
+		physics->InitObjects(map->GetMapObjects()[i]->BoundingBoxPhys);
+	}
+
 }
 
 /*
@@ -214,6 +220,11 @@ void CrimeScene::preFrame(double frameTime, double totalTime)
 	if (inspectingObject)
 		updateInspectingObject();
 	physics->UpdateWorld(timeFctr,glm::vec3(1,1,1),0);
+
+	for (int i = 0; i < map->GetMapObjects().size(); i++)
+	{
+		map->GetMapObjects()[i]->setPosition(map->GetMapObjects()[i]->getPhysicsObjectPosition());
+	}
 }
 
 /*
@@ -352,11 +363,11 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	//TODO fix color
 	drawWand();
 	physics->world->debugDrawWorld();
-	return;
+	//return;
 	//Only draw the axis and boundingboxes in debug mode
 #ifdef _DEBUG
-	drawAxis();
-	map->drawBoundingBoxes(&viewMatrix);
+	//drawAxis();
+	//map->drawBoundingBoxes(&viewMatrix);
 #endif // _DEBUG
 
 	//Draw the map's cubemap
@@ -603,6 +614,7 @@ void CrimeScene::drawWand()
 	glVertex3f(wandPosition[0], wandPosition[1], wandPosition[2]);
 	glVertex3f(wandTarget[0], wandTarget[1], wandTarget[2]);
 	glEnd();
+	glLineWidth(2.0f);
 }
 
 /*

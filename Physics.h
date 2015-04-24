@@ -43,7 +43,7 @@ public:
 	void PlayerInit(glm::vec4 position, float rotationY);
 	void WorldInit();
 	void UpdateWorld(const float timeFctr, const glm::vec3 movement,const float newRotation);
-	void InitObjects();
+	void InitObjects(btRigidBody* rigidBody);
 
 private:
 	DebugDrawer * m_pDebugDrawer;

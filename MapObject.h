@@ -41,6 +41,7 @@ public:
 	void setIsStandardVisible(bool newIsStandardVisible);
 	std::string getDescription();
 	void setDescription(std::string newDescription);
+	glm::vec3 getPhysicsObjectPosition();
 
 	glm::mat4 getModelMatrix();
 	void setModelMatrix(glm::mat4 newModelMatrix);

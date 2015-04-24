@@ -38,27 +38,30 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
 
-	Bbox boundingBox = this->getBoundingBoxWithOutViewMatrix();
-	glm::vec3 BboxSize = boundingBox.mMax - boundingBox.mMin;
+	if (mass != -1.0f)
+	{
+		Bbox boundingBox = this->getBoundingBoxWithOutViewMatrix();
+		glm::vec3 BboxSize = boundingBox.mMax - boundingBox.mMin;
 
-	btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x, BboxSize.y, BboxSize.z));
+		btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x, BboxSize.y, BboxSize.z));
 
-	btTransform startTransform;
-	startTransform.setIdentity();
-	startTransform.setOrigin(btVector3(position.x, position.y, position.z));
+		btTransform startTransform;
+		startTransform.setIdentity();
+		startTransform.setOrigin(btVector3(position.x, position.y, position.z));
 
-	btDefaultMotionState* colMotionState = new btDefaultMotionState(startTransform);
+		btDefaultMotionState* colMotionState = new btDefaultMotionState(startTransform);
 
-	btRigidBody::btRigidBodyConstructionInfo cInfo(
-		mass,
-		colMotionState,
-		colShape,
-		btVector3(0, 0, 0)
-		);
+		btRigidBody::btRigidBodyConstructionInfo cInfo(
+			mass,
+			colMotionState,
+			colShape,
+			btVector3(0, 0, 0)
+			);
 
-	BoundingBoxPhys = new btRigidBody(cInfo);
-	BoundingBoxPhys->setRestitution(1.0f);
-	BoundingBoxPhys->setFriction(0.0f);
+		BoundingBoxPhys = new btRigidBody(cInfo);
+		BoundingBoxPhys->setRestitution(1.0f);
+		BoundingBoxPhys->setFriction(0.0f);
+	}
 
 }
 
@@ -94,6 +97,21 @@ Last edit: Bas Rops - 06-05-2014
 void MapObject::setPosition(glm::vec3 newPosition)
 {
 	this->position = newPosition;
+
+	//this->modelMatrix = glm::translate(this->modelMatrix, this->position);
+	////Add 90 to x-rotation and 180 to y-rotation to compensate for rotation in file,
+	////because the mapeditor and simulator have different object rotations.
+	//this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+	//this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(180.0f), glm::vec3(0, 1, 0));
+}
+
+glm::vec3 MapObject::getPhysicsObjectPosition()
+{
+	btTransform trans;
+	BoundingBoxPhys->getMotionState()->getWorldTransform(trans);
+	glm::vec3 trans3 = { (float)trans.getOrigin().getX(), ((float)trans.getOrigin().getY()), (float)trans.getOrigin().getZ() };
+
+	return trans3;
 }
 
 /*

@@ -200,6 +200,10 @@ bool Map::load(std::string file, Player* player)
 		{
 			mass = 0.0f;
 		}
+		else if (category == "Walls")
+		{
+			mass = -1.0f;
+		}
 		else
 		{
 			mass = 1.0f;
