@@ -171,8 +171,8 @@ void CrimeScene::init()
 	photo = new Photo(1024, 1024);
 	physics = new Physics();
 	
-	//physics->WorldInit(map->GetMapObjects());
-	//physics->PlayerInit(player->getPosition(), player->getRotation());
+	physics->WorldInit();
+	physics->PlayerInit(player->getPosition(), player->getRotation());
 }
 
 /*
@@ -213,7 +213,7 @@ void CrimeScene::preFrame(double frameTime, double totalTime)
 	//Only update the toolbox when an object is being inspected
 	if (inspectingObject)
 		updateInspectingObject();
-	//physics->UpdateWorld(timeFctr,glm::vec3(1,1,1),0);
+	physics->UpdateWorld(timeFctr,glm::vec3(1,1,1),0);
 }
 
 /*
@@ -351,7 +351,8 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 
 	//TODO fix color
 	drawWand();
-	//physics.world->debugDrawWorld();
+	physics->world->debugDrawWorld();
+	return;
 	//Only draw the axis and boundingboxes in debug mode
 #ifdef _DEBUG
 	drawAxis();

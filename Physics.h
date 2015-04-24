@@ -41,8 +41,9 @@ public:
 	btRigidBody *							playerBody;
 
 	void PlayerInit(glm::vec4 position, float rotationY);
-	void WorldInit(cModel* stage);
+	void WorldInit();
 	void UpdateWorld(const float timeFctr, const glm::vec3 movement,const float newRotation);
+	void InitObjects();
 
 private:
 	DebugDrawer * m_pDebugDrawer;
