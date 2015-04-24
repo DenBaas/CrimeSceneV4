@@ -59,7 +59,7 @@ void Physics::WorldInit(){
 	dispatcher = new btCollisionDispatcher(collisionConfiguration);
 	solver = new btSequentialImpulseConstraintSolver();
 	world = new btDiscreteDynamicsWorld(dispatcher, broadphase, solver, collisionConfiguration);
-	world->setGravity(btVector3(0, -9.8, 0));
+	world->setGravity(btVector3(0, -9.8*0, 0));
 	//debugdrawer
 	m_pDebugDrawer = new DebugDrawer();
 	m_pDebugDrawer->setDebugMode(3);
@@ -94,6 +94,14 @@ void Physics::UpdateWorld(const float timeFctr, const glm::vec3 movement,const f
 	move = move.rotate(btVector3(0, 1, 0), newRotation);
 	playerBody->applyForce(move,btVector3(0,0,-0.9));
 	playerBody->activate();
+	//dit moet in een tickcallback staan volgens http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Code_Snippets#I_want_to_cap_the_speed_of_my_spaceship
+	btVector3 velocity = playerBody->getLinearVelocity();
+	btScalar speed = velocity.length();
+	if (speed > FORCE) {
+		velocity *= FORCE / speed;
+		playerBody->setLinearVelocity(velocity);
+	}
+	//
 	world->stepSimulation(timeFctr);
 	btVector3 b2 = playerBody->getWorldTransform().getOrigin();
 	printf("auto %f,%f,%f \n", b2.x(), b2.y(), b2.z());
