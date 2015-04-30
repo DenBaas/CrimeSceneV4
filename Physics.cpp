@@ -74,5 +74,14 @@ void Physics::UpdateWorld(const float timeFctr, const glm::vec3 movement,const f
 	//
 	world->stepSimulation(timeFctr);
 	btVector3 b2 = playerBody->getWorldTransform().getOrigin();
-	printf("auto %f,%f,%f \n", b2.x(), b2.y(), b2.z());
+	//printf("auto %f,%f,%f \n", b2.x(), b2.y(), b2.z());
+	//checkSound();
+}
+
+void Physics::checkSound(){
+	for each (btRigidBody* objectInMap in bodysInWorld)
+	{
+		btVector3 speed = objectInMap->getLinearVelocity();
+		printf("%f\n", speed.length());
+	}
 }

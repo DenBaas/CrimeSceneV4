@@ -20,6 +20,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <vector>
 #include <CaveLib\model.h>
+#include <irrKlang.h>
 
 #include "DebugDrawer.h"
 
@@ -45,8 +46,10 @@ public:
 	void WorldInit();
 	void UpdateWorld(const float timeFctr, const glm::vec3 movement,const float newRotation);
 	int AddObjectToWorld(btRigidBody* rigidBody);
+	
 
 private:
 	DebugDrawer * m_pDebugDrawer;
+	void checkSound();
 };
 

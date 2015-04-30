@@ -108,6 +108,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\aerial-pace-vr\WiiYourself\wiimote.h" />
+    <ClInclude Include="..\aerial-pace-vr\WiiYourself\WiiMoteWrapper.h" />
+    <ClInclude Include="..\aerial-pace-vr\WiiYourself\wiimote_common.h" />
+    <ClInclude Include="..\aerial-pace-vr\WiiYourself\wiimote_state.h" />
     <ClInclude Include="AssimpMesh.h" />
     <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="CrimeScene.h" />
@@ -126,6 +130,8 @@
     <ClInclude Include="Utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\aerial-pace-vr\WiiYourself\wiimote.cpp" />
+    <ClCompile Include="..\aerial-pace-vr\WiiYourself\WiiMoteWrapper.cpp" />
     <ClCompile Include="AssimpMesh.cpp" />
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="CrimeScene.cpp" />

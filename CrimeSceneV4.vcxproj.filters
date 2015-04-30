@@ -22,6 +22,12 @@
     <Filter Include="Header Files\Assimp">
       <UniqueIdentifier>{d2bd0d10-586b-4cfa-a696-0c10d2ce1bad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\WiiYourself">
+      <UniqueIdentifier>{09de882c-0e1a-4112-85be-c4a15e1f8220}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\WiiYourself">
+      <UniqueIdentifier>{9687b109-98fc-418b-acb3-eb266ca9887c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CrimeScene.h">
@@ -72,6 +78,18 @@
     <ClInclude Include="ResultsFileIO.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\aerial-pace-vr\WiiYourself\wiimote.h">
+      <Filter>Header Files\WiiYourself</Filter>
+    </ClInclude>
+    <ClInclude Include="..\aerial-pace-vr\WiiYourself\wiimote_common.h">
+      <Filter>Header Files\WiiYourself</Filter>
+    </ClInclude>
+    <ClInclude Include="..\aerial-pace-vr\WiiYourself\wiimote_state.h">
+      <Filter>Header Files\WiiYourself</Filter>
+    </ClInclude>
+    <ClInclude Include="..\aerial-pace-vr\WiiYourself\WiiMoteWrapper.h">
+      <Filter>Header Files\WiiYourself</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CrimeScene.cpp">
@@ -121,6 +139,12 @@
     </ClCompile>
     <ClCompile Include="ResultsFileIO.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\aerial-pace-vr\WiiYourself\wiimote.cpp">
+      <Filter>Source Files\WiiYourself</Filter>
+    </ClCompile>
+    <ClCompile Include="..\aerial-pace-vr\WiiYourself\WiiMoteWrapper.cpp">
+      <Filter>Source Files\WiiYourself</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

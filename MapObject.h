@@ -26,6 +26,7 @@ public:
 	~MapObject();
 
 	btRigidBody* BoundingBoxPhys = NULL;
+	irrklang::ISound* sound = NULL;
 
 	Bbox getBoundingBox(glm::mat4* viewMatrix);
 	Bbox getBoundingBoxWithOutViewMatrix();

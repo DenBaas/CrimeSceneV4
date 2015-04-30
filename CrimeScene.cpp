@@ -221,11 +221,34 @@ void CrimeScene::preFrame(double frameTime, double totalTime)
 	if (inspectingObject)
 		updateInspectingObject();
 	physics->UpdateWorld(timeFctr,glm::vec3(0,0,0),0);
-
-	for (int i = 0; i < map->GetMapObjects().size(); i++)
-	{
-		if (map->GetMapObjects()[i]->BoundingBoxPhys != NULL)
-		map->GetMapObjects()[i]->setPosition(map->GetMapObjects()[i]->getPhysicsObjectPosition());
+	btVector3 posOfplayer = physics->playerBody->getCenterOfMassPosition();
+	soundEngine->setListenerPosition(irrklang::vec3df(0, 0, 0),
+		irrklang::vec3df(posOfplayer.x(), posOfplayer.y(), posOfplayer.z()));
+	for each(MapObject* m in map->GetMapObjects()){
+		if (m->BoundingBoxPhys != NULL){
+			m->setPosition(m->getPhysicsObjectPosition());
+			btVector3 speed = m->BoundingBoxPhys->getLinearVelocity()*btVector3(1, 1, 1);
+			//printf("%d %f\n",m->BoundingBoxPhys->getCollisionFlags(),speed.length());
+			//geluid
+			continue;			
+			//het beweegt = geluid
+			if (speed.length() > 1){
+				glm::vec3 location = m->getPhysicsObjectPosition();
+				if (m->sound == NULL){ 					
+					m->sound = soundEngine->play3D("C:\\Users\\Bas\\Desktop\\177611__aminut__fist-hiting-wood-table.wav", irrklang::vec3df(location.x, location.y, location.z),false,false); 					
+				}
+				else{
+					m->sound->setPlayPosition(0);
+					m->sound->setIsPaused(false);
+				}
+			}
+			//staat stil = geen geluid
+			else{
+				if (m->sound != NULL){
+					m->sound->setIsPaused(true);
+				}
+			}
+		}
 	}
 }
 
@@ -357,18 +380,20 @@ Last edit: Ricardo Blommers - 09-06-2014
 void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {
 	glm::mat4 viewMatrix = modelViewMatrix * player->getPlayerMatrix();
-
 	glClear(GL_DEPTH_BUFFER_BIT);
-
 	glUseProgram(0);
-
 	//TODO fix color
+	glPushMatrix();
 	drawWand();
-	physics->world->debugDrawWorld();
+	glPopMatrix();
 	//return;
 	//Only draw the axis and boundingboxes in debug mode
 #ifdef _DEBUG
 	//drawAxis();
+	glPushMatrix();
+	glLineWidth(2.0f);
+	physics->world->debugDrawWorld();
+	glPopMatrix();
 	//map->drawBoundingBoxes(&viewMatrix);
 #endif // _DEBUG
 
@@ -389,6 +414,7 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		toolboxPanel->draw();
 		glDisable(GL_CULL_FACE);
 	}
+	
 }
 
 /*
