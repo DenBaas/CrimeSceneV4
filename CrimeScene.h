@@ -17,7 +17,7 @@
 #include <irrKlang.h>
 #include <ctime>
 
-
+#include "WiiYourself\WiiMoteWrapper.h"
 
 class cTexture;
 class cModel;
@@ -52,6 +52,7 @@ class CrimeScene: public Application
 	glm::vec3 wandTarget;
 
 	Physics* physics;
+	WiiMoteWrapper * wiimoteAndNunchuk;
 	clock_t clock_start;
 public:
 	enum class Uniforms
@@ -112,7 +113,7 @@ private:
 	void initSpotlight();
 
 public:
-	CrimeScene(std::string filename);
+	CrimeScene(std::string filename, WiiMoteWrapper* w);
 	~CrimeScene();
 
 	void consoleExit();

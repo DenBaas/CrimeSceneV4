@@ -108,10 +108,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\aerial-pace-vr\WiiYourself\wiimote.h" />
-    <ClInclude Include="..\aerial-pace-vr\WiiYourself\WiiMoteWrapper.h" />
-    <ClInclude Include="..\aerial-pace-vr\WiiYourself\wiimote_common.h" />
-    <ClInclude Include="..\aerial-pace-vr\WiiYourself\wiimote_state.h" />
     <ClInclude Include="AssimpMesh.h" />
     <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="CrimeScene.h" />
@@ -128,10 +124,12 @@
     <ClInclude Include="SharedInfo.h" />
     <ClInclude Include="ToolboxPanel.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="WiiYourself\wiimote.h" />
+    <ClInclude Include="WiiYourself\WiiMoteWrapper.h" />
+    <ClInclude Include="WiiYourself\wiimote_common.h" />
+    <ClInclude Include="WiiYourself\wiimote_state.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\aerial-pace-vr\WiiYourself\wiimote.cpp" />
-    <ClCompile Include="..\aerial-pace-vr\WiiYourself\WiiMoteWrapper.cpp" />
     <ClCompile Include="AssimpMesh.cpp" />
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="CrimeScene.cpp" />
@@ -148,6 +146,8 @@
     <ClCompile Include="SharedInfo.cpp" />
     <ClCompile Include="ToolboxPanel.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="WiiYourself\wiimote.cpp" />
+    <ClCompile Include="WiiYourself\WiiMoteWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\cubemap.frag" />

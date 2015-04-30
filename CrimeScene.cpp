@@ -32,6 +32,7 @@
 #define CONE_LENGTH 4.0f
 #define CONE_NEAR_RADIUS 0.025f
 #define CONE_FAR_RADIUS 0.5f
+#include <thread>
 
 //crimescene, oculus viewport 25fps
 //crimescene, simulator 45fps
@@ -49,6 +50,7 @@ Last edit: Bas Rops - 13-06-2014
 int main(int argc, char* argv[])
 {
 	Kernel* kernel = Kernel::getInstance();
+	WiiMoteWrapper w;
 	RestApi::getInstance();
 	CrimeScene* application = nullptr;
 
@@ -62,21 +64,20 @@ int main(int argc, char* argv[])
 		if (strcmp(argv[i], "--map") == 0)
 		{
 			i++;
-			application = new CrimeScene(argv[i]);
+			application = new CrimeScene(argv[i],&w);
 		}
 	}
-
-
 	if (application == nullptr)
-		application = new CrimeScene("");
-
+		application = new CrimeScene("",&w);
+	thread t([&](WiiMoteWrapper * w2){ w2->start(); }, &w);
 	//RestApi::getInstance()->registerAsEnvironment();
 
 	kernel->setApp(application);
 	kernel->start();
 
 	delete application;
-
+	w.continueGame = false;
+	t.join();
 	return 0;
 }
 
@@ -85,9 +86,10 @@ Constructor
 Author: Bas Rops - 25-04-2014
 Last edit: Bas Rops - 05-06-2014
 */
-CrimeScene::CrimeScene(std::string filename)
+CrimeScene::CrimeScene(std::string filename, WiiMoteWrapper* w)
 {
 	this->mapFilename = filename;
+	this->wiimoteAndNunchuk = w;
 }
 
 /*
