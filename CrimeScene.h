@@ -52,8 +52,12 @@ class CrimeScene: public Application
 	glm::vec3 wandTarget;
 
 	Physics* physics;
-	WiiMoteWrapper * wiimoteAndNunchuk;
+	WiiMoteWrapper * wiimoteData;
 	clock_t clock_start;
+	int wiimode = 0;//zie indeling knoppen op dropbox wat waar voor staat
+	int MAXMODES = 3;
+	float rotation = 0;
+	float zoomfactor = 0;
 public:
 	enum class Uniforms
 	{
@@ -100,6 +104,7 @@ private:
 	void createScreenshot();
 	void handleInput(float elapsedTime);
 	void updateInspectingObject();
+	void handleWiiMote();
 
 	void draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix);
 	void drawMap(glm::mat4* projectionMatrix, glm::mat4* viewMatrix);

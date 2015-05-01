@@ -89,7 +89,7 @@ Last edit: Bas Rops - 05-06-2014
 CrimeScene::CrimeScene(std::string filename, WiiMoteWrapper* w)
 {
 	this->mapFilename = filename;
-	this->wiimoteAndNunchuk = w;
+	this->wiimoteData = w;
 }
 
 /*
@@ -205,6 +205,68 @@ irrklang::ISound* CrimeScene::playSound2D(std::string filename, bool loop, bool 
 	}
 }
 
+void CrimeScene::handleWiiMote()
+{
+	wiimote_state::buttons buttons = wiimoteData->buttonsPressed;	
+	if (buttons.Home()){
+
+	}
+	if (buttons.Plus()&& !buttons.Minus()){
+		wiimode++;
+		wiimode %= MAXMODES;
+		zoomfactor = 0;
+	}
+	if (buttons.Minus() && !buttons.Plus()){
+		wiimode--;
+		if (wiimode < 0)
+			wiimode = 0;
+		zoomfactor = 0;
+	}
+	float r = M_PI/20;
+	if (buttons.Left())
+		rotation -= r;
+	if (buttons.Right())
+		rotation += r;
+	switch (wiimode){
+	case 0:
+		if (buttons.A()){
+
+		}
+		if (buttons.B()){
+
+		}
+		break;
+	case 1:
+		if (buttons.A()){
+
+		}
+		if (buttons.B()){
+
+		}
+		if (wiimoteData->nunchukInfo.C){
+
+		}
+		if (wiimoteData->nunchukInfo.Z){
+
+		}
+		break;
+	case 2:
+		if (buttons.A()){
+
+		}
+		if (buttons.B()){
+
+		}
+		if (wiimoteData->nunchukInfo.C){
+
+		}
+		if (wiimoteData->nunchukInfo.Z){
+
+		}
+		break;
+	}
+}
+
 /*
 "Update-function" that does stuff before the draw function gets called
 Author: Bas Rops - 25-04-2014
@@ -212,17 +274,16 @@ Last edit: Bas Rops - 11-06-2014
 */
 void CrimeScene::preFrame(double frameTime, double totalTime)
 {
+	handleWiiMote();
 	clock_t clock_end = clock();
 	GLfloat timeFctr = GLfloat(clock_end - clock_start) / CLOCKS_PER_SEC; // calculate time(s) elapsed since last frame
 	clock_start = clock();
 	toolboxPanel->setSelector(wandRay);
-
 	handleInput(frameTime);
-
 	//Only update the toolbox when an object is being inspected
 	if (inspectingObject)
 		updateInspectingObject();
-	physics->UpdateWorld(timeFctr,glm::vec3(0,0,0),0);
+	physics->UpdateWorld(timeFctr, btVector3(wiimoteData->nunchukInfo.Joystick.X, 0, wiimoteData->nunchukInfo.Joystick.Y).rotate(btVector3(0, 1, 0), rotation), 0);
 	btVector3 posOfplayer = physics->playerBody->getCenterOfMassPosition();
 	soundEngine->setListenerPosition(irrklang::vec3df(0, 0, 0),
 		irrklang::vec3df(posOfplayer.x(), posOfplayer.y(), posOfplayer.z()));
@@ -252,7 +313,10 @@ void CrimeScene::preFrame(double frameTime, double totalTime)
 			}
 		}
 	}
+
 }
+
+
 
 /*
 Handles input from wand, buttons, keyboard presses, etc
@@ -381,7 +445,11 @@ Last edit: Ricardo Blommers - 09-06-2014
 */
 void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {
-	glm::mat4 viewMatrix = modelViewMatrix * player->getPlayerMatrix();
+	glm::mat4 viewMatrix = modelViewMatrix;// *player->getPlayerMatrix();
+	viewMatrix = glm::rotate(viewMatrix, rotation, glm::vec3(0, 1, 0));
+	btVector3 f = physics->playerBody->getWorldTransform().getOrigin();
+	viewMatrix = glm::translate(viewMatrix, glm::vec3(f.x(), f.y() - 1.85, f.z()));
+	printf("%f,%f,%f\n", f.x(), f.y(), f.z());
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(0);
 	//TODO fix color
