@@ -392,6 +392,9 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	//Only draw the axis and boundingboxes in debug mode
 #ifdef _DEBUG
 	//drawAxis();
+	float *PhysMatrix = glm::value_ptr(viewMatrix);
+
+	glLoadMatrixf(PhysMatrix);
 	glPushMatrix();
 	glLineWidth(2.0f);
 	physics->world->debugDrawWorld();

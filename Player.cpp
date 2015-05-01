@@ -5,6 +5,8 @@
 #include <GL\GL.h>
 #include <String>
 #include <glm\gtx\vector_angle.hpp>
+#include <iostream>
+using namespace std;
 
 
 /*
@@ -122,7 +124,9 @@ void Player::update(glm::mat4 hoofdmatrix)
 		}
 
 		glm::mat4 rotatie;
-		rotatie = glm::rotate(rotatie, sharedInfo->rotation, glm::vec3(0, 1, 0));
+		//rotatie = glm::translate(hoofdmatrix, glm::vec3(sharedInfo->position));
+		rotatie = glm::rotate(hoofdmatrix, sharedInfo->rotation, glm::vec3(0, 1, 0));	// <--- To Fix
+		//rotatie = glm::translate(hoofdmatrix, -glm::vec3(sharedInfo->position));
 
 		glm::vec4 verandering = (hoofdmatrix * glm::vec4(0, 0, 0, 1)) - (hoofdmatrix* glm::vec4(0, 0, currentmovementspeed, 1));
 		verandering = verandering* rotatie;
@@ -159,8 +163,14 @@ void Player::update(glm::mat4 hoofdmatrix)
 		glm::mat4 nieuw;
 		position = nieuw;
 
+		//position = glm::translate(position, glm::vec3(sharedInfo->position));
 		position = glm::rotate(position, sharedInfo->rotation, glm::vec3(0, 1, 0));
+		//position = glm::translate(position, -glm::vec3(sharedInfo->position));
+
 		position = glm::translate(position, glm::vec3(sharedInfo->position));
+
+		glm::vec3 pos = glm::vec3(position * glm::vec4(0, 0, 0,1));
+		cout << pos.x << endl;
 	}
 }
 
