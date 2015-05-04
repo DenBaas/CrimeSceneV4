@@ -49,11 +49,11 @@ Last edit: Bas Rops - 13-06-2014
 */
 int main(int argc, char* argv[])
 {
-	Kernel* kernel = Kernel::getInstance();
-	WiiMoteWrapper w;
-	RestApi::getInstance();
+	Kernel* kernel = Kernel::getInstance(); 
+	GameInfo *g = new GameInfo();
+	WiiMoteWrapper w(g);
+	//RestApi::getInstance();
 	CrimeScene* application = nullptr;
-
 	for (int i = 1; i < argc; ++i)
 	{
 		if (strcmp(argv[i], "--config") == 0)
@@ -64,11 +64,11 @@ int main(int argc, char* argv[])
 		if (strcmp(argv[i], "--map") == 0)
 		{
 			i++;
-			application = new CrimeScene(argv[i],&w);
+			application = new CrimeScene(argv[i],&w,g);
 		}
 	}
 	if (application == nullptr)
-		application = new CrimeScene("",&w);
+		application = new CrimeScene("",&w,g);
 	thread t([&](WiiMoteWrapper * w2){ w2->start(); }, &w);
 	//RestApi::getInstance()->registerAsEnvironment();
 
@@ -77,6 +77,7 @@ int main(int argc, char* argv[])
 
 	delete application;
 	w.continueGame = false;
+	delete g;
 	t.join();
 	return 0;
 }
@@ -86,10 +87,11 @@ Constructor
 Author: Bas Rops - 25-04-2014
 Last edit: Bas Rops - 05-06-2014
 */
-CrimeScene::CrimeScene(std::string filename, WiiMoteWrapper* w)
+CrimeScene::CrimeScene(std::string filename, WiiMoteWrapper* w, GameInfo * g)
 {
 	this->mapFilename = filename;
 	this->wiimoteData = w;
+	infoForGame = g;
 }
 
 /*
@@ -207,27 +209,29 @@ irrklang::ISound* CrimeScene::playSound2D(std::string filename, bool loop, bool 
 
 void CrimeScene::handleWiiMote()
 {
+	if (infoForGame->status != 1)
+		return;
 	wiimote_state::buttons buttons = wiimoteData->buttonsPressed;	
 	if (buttons.Home()){
 
 	}
 	if (buttons.Plus()&& !buttons.Minus()){
-		wiimode++;
-		wiimode %= MAXMODES;
-		zoomfactor = 0;
+		infoForGame->gamemode++;
+		infoForGame->gamemode %= infoForGame->MAXMODES;
+		infoForGame->zoomfactor = 0;
 	}
 	if (buttons.Minus() && !buttons.Plus()){
-		wiimode--;
-		if (wiimode < 0)
-			wiimode = 0;
-		zoomfactor = 0;
+		infoForGame->gamemode--;
+		if (infoForGame->gamemode < 0)
+			infoForGame->gamemode = 0;
+		infoForGame->gamemode = 0;
 	}
 	float r = M_PI/20;
 	if (buttons.Left())
-		rotation -= r;
+		infoForGame->rotation -= r;
 	if (buttons.Right())
-		rotation += r;
-	switch (wiimode){
+		infoForGame->rotation += r;
+	switch (infoForGame->gamemode){
 	case 0:
 		if (buttons.A()){
 
@@ -283,7 +287,8 @@ void CrimeScene::preFrame(double frameTime, double totalTime)
 	//Only update the toolbox when an object is being inspected
 	if (inspectingObject)
 		updateInspectingObject();
-	physics->UpdateWorld(timeFctr, btVector3(wiimoteData->nunchukInfo.Joystick.X, 0, wiimoteData->nunchukInfo.Joystick.Y).rotate(btVector3(0, 1, 0), rotation), 0);
+	float r = infoForGame->rotation;
+	physics->UpdateWorld(timeFctr, btVector3(wiimoteData->nunchukInfo.Joystick.X, 0, -wiimoteData->nunchukInfo.Joystick.Y), r);
 	btVector3 posOfplayer = physics->playerBody->getCenterOfMassPosition();
 	soundEngine->setListenerPosition(irrklang::vec3df(0, 0, 0),
 		irrklang::vec3df(posOfplayer.x(), posOfplayer.y(), posOfplayer.z()));
@@ -445,21 +450,20 @@ Last edit: Ricardo Blommers - 09-06-2014
 */
 void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {
-	glm::mat4 viewMatrix = modelViewMatrix;// *player->getPlayerMatrix();
-	viewMatrix = glm::rotate(viewMatrix, rotation, glm::vec3(0, 1, 0));
+	glm::mat4 viewMatrix = modelViewMatrix*player->getPlayerMatrix();
+	viewMatrix = glm::rotate(viewMatrix, -infoForGame->rotation, glm::vec3(0, 1, 0));
 	btVector3 f = physics->playerBody->getWorldTransform().getOrigin();
-	viewMatrix = glm::translate(viewMatrix, glm::vec3(f.x(), f.y() - 1.85, f.z()));
-	printf("%f,%f,%f\n", f.x(), f.y(), f.z());
+	viewMatrix = glm::translate(viewMatrix, glm::vec3(-f.x(), -f.y(), -f.z()));
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(0);
 	//TODO fix color
 	glPushMatrix();
 	drawWand();
 	glPopMatrix();
-	//return;
-	//Only draw the axis and boundingboxes in debug mode
-#ifdef _DEBUG
-	//drawAxis();
+	glPushMatrix();
+	drawAxis();
+	glPopMatrix();
+	//return;	
 	float *PhysMatrix = glm::value_ptr(viewMatrix);
 
 	glLoadMatrixf(PhysMatrix);
@@ -468,7 +472,6 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	physics->world->debugDrawWorld();
 	glPopMatrix();
 	//map->drawBoundingBoxes(&viewMatrix);
-#endif // _DEBUG
 
 	//Draw the map's cubemap
 	map->drawCubemap(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);

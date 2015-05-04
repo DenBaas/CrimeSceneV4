@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{9B02052B-97B5-4E3C-AF1B-A71451E49E3B}</ProjectGuid>
+    <ProjectGuid>{E30347A0-74F4-4939-936E-F465C8470C4E}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>CrimeSceneV4</RootNamespace>
   </PropertyGroup>
@@ -97,6 +97,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)\Libraries\bullet3\src; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -112,6 +113,7 @@
     <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="CrimeScene.h" />
     <ClInclude Include="DebugDrawer.h" />
+    <ClInclude Include="GameInfo.h" />
     <ClInclude Include="InspectObject.h" />
     <ClInclude Include="ResultsFileIO.h" />
     <ClInclude Include="Map.h" />
@@ -134,6 +136,7 @@
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="CrimeScene.cpp" />
     <ClCompile Include="DebugDrawer.cpp" />
+    <ClCompile Include="GameInfo.cpp" />
     <ClCompile Include="InspectObject.cpp" />
     <ClCompile Include="ResultsFileIO.cpp" />
     <ClCompile Include="Map.cpp" />

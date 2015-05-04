@@ -18,6 +18,7 @@
 #include <ctime>
 
 #include "WiiYourself\WiiMoteWrapper.h"
+#include "GameInfo.h"
 
 class cTexture;
 class cModel;
@@ -54,10 +55,7 @@ class CrimeScene: public Application
 	Physics* physics;
 	WiiMoteWrapper * wiimoteData;
 	clock_t clock_start;
-	int wiimode = 0;//zie indeling knoppen op dropbox wat waar voor staat
-	int MAXMODES = 3;
-	float rotation = 0;
-	float zoomfactor = 0;
+	
 public:
 	enum class Uniforms
 	{
@@ -118,8 +116,10 @@ private:
 	void initSpotlight();
 
 public:
-	CrimeScene(std::string filename, WiiMoteWrapper* w);
+	CrimeScene(std::string filename, WiiMoteWrapper* w, GameInfo * g);
 	~CrimeScene();
+
+	GameInfo * infoForGame;
 
 	void consoleExit();
 	irrklang::ISound* playSound2D(std::string filename, bool loop, bool startPaused, bool track = true);

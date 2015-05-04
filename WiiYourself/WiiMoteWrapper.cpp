@@ -3,10 +3,11 @@
 
 using namespace std;
 
-WiiMoteWrapper::WiiMoteWrapper()
+WiiMoteWrapper::WiiMoteWrapper(GameInfo * g)
 {
 	continueGame = true;
-	status = 0; //0 = wachten 1 = succes -1 = niet succes
+	infoForGame = g;
+	infoForGame->status = 0; //0 = wachten 1 = succes -1 = niet succes	
 }
 
 void WiiMoteWrapper::start(){
@@ -123,9 +124,7 @@ reconnect:
 	if (!continueGame){
 		return 0;
 	}
-	// connected - light all LEDs
-	//remote.SetLEDs(0x0f);
-	status = 1;
+	infoForGame->status = 1;
 	WIIMOTE = true;
 #ifdef USE_BEEPS_AND_DELAYS
 	//Beep(1000, 300); 
@@ -168,6 +167,7 @@ reconnect:
 				continue;
 			const TCHAR* button_name = wiimote::ButtonNameFromBit[bit];
 			bool		 pressed = ((remote.Button.Bits & mask) != 0);
+			previousButtons = buttonsPressed;
 			buttonsPressed = remote.Button;
 			nunchukInfo = remote.Nunchuk;
 			batteryLevel = remote.BatteryRaw;
