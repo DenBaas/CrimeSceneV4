@@ -19,6 +19,7 @@
 
 #include "WiiYourself\WiiMoteWrapper.h"
 #include "GameInfo.h"
+#include "FrameBufferObject.h"
 
 class cTexture;
 class cModel;
@@ -55,6 +56,7 @@ class CrimeScene: public Application
 	Physics* physics;
 	WiiMoteWrapper * wiimoteData;
 	clock_t clock_start;
+	FrameBufferObject fbo;
 	
 public:
 	enum class Uniforms

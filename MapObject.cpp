@@ -22,6 +22,8 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 {
 	this->model = model;
 	this->position = position;
+	if (this->position.y < 0)
+		this->position.y = 0;
 	this->rotation = rotation;
 	this->scale = scale;
 	this->interactable = interactable;
@@ -45,9 +47,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 		btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x/2, BboxSize.y/2, BboxSize.z/2));
 		btTransform startTransform;
 		startTransform.setIdentity();
-		btVector3 origin(position.x + (BboxSize.x / 2), position.y + (BboxSize.y / 2), position.z + (BboxSize.z / 2));
-		/*if (origin.y() < 0)
-			origin.setY(0);*/
+		btVector3 origin(this->position.x + (BboxSize.x / 2), this->position.y + (BboxSize.y / 2), this->position.z + (BboxSize.z / 2));
 		startTransform.setOrigin(origin);
 		btDefaultMotionState* colMotionState = new btDefaultMotionState(startTransform);
 		btVector3 fallInertia;
@@ -59,6 +59,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 			fallInertia
 			);		
 		BoundingBoxPhys = new btRigidBody(cInfo);
+		BoundingBoxPhys->setGravity(btVector3(0, -9.8, 0));
 		BoundingBoxPhys->setRestitution(0.0f);
 		BoundingBoxPhys->setFriction(0.0f);
 	}

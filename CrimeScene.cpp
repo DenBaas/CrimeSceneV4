@@ -34,6 +34,7 @@
 #define CONE_FAR_RADIUS 0.5f
 #include <thread>
 
+const bool FBO_ENABLED = true;
 //crimescene, oculus viewport 25fps
 //crimescene, simulator 45fps
 // after shader optimalisation
@@ -49,7 +50,7 @@ Last edit: Bas Rops - 13-06-2014
 */
 int main(int argc, char* argv[])
 {
-	Kernel* kernel = Kernel::getInstance(); 
+	Kernel* kernel = Kernel::getInstance();
 	GameInfo *g = new GameInfo();
 	WiiMoteWrapper w(g);
 	//RestApi::getInstance();
@@ -91,7 +92,8 @@ CrimeScene::CrimeScene(std::string filename, WiiMoteWrapper* w, GameInfo * g)
 {
 	this->mapFilename = filename;
 	this->wiimoteData = w;
-	infoForGame = g;
+	Kernel* kernel = Kernel::getInstance();
+	infoForGame = g;	
 }
 
 /*
@@ -150,6 +152,10 @@ void CrimeScene::init()
 {
 	initDevices();
 	initOpenGL();
+	if (FBO_ENABLED){
+		Kernel* kernel = Kernel::getInstance();
+		fbo.init(kernel->getWindowWidth(), kernel->getWindowHeight());
+	}
 	initSpotlight();
 	initShaders();
 
@@ -450,10 +456,19 @@ Last edit: Ricardo Blommers - 09-06-2014
 */
 void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {
+	GLint viewport[4];
+	GLint oldFbo;
+	if (FBO_ENABLED){		
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldFbo);		
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo.fboID);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
 	glm::mat4 viewMatrix = modelViewMatrix*player->getPlayerMatrix();
 	viewMatrix = glm::rotate(viewMatrix, -infoForGame->rotation, glm::vec3(0, 1, 0));
 	btVector3 f = physics->playerBody->getWorldTransform().getOrigin();
-	viewMatrix = glm::translate(viewMatrix, glm::vec3(-f.x(), -f.y(), -f.z()));
+	viewMatrix = glm::translate(viewMatrix, glm::vec3(-f.x(), -f.y()-1, -f.z()));
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(0);
 	//TODO fix color
@@ -490,7 +505,29 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		toolboxPanel->draw();
 		glDisable(GL_CULL_FACE);
 	}
-	
+	if (FBO_ENABLED){
+		glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
+		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		std::vector<glm::vec2> verts;
+		verts.push_back(glm::vec2(-1, -1));
+		verts.push_back(glm::vec2(1, -1));
+		verts.push_back(glm::vec2(1, 1));
+		verts.push_back(glm::vec2(-1, 1));
+		ShaderProgram* curFBOShader = fbo.fboShaders[fbo.currentShader];
+		curFBOShader->use();
+		curFBOShader->setUniformMatrix4("modelViewProjectionMatrix", modelViewMatrix);		
+		glBindVertexArray(0);
+		glEnableVertexAttribArray(0);                                                   // en vertex attribute 1
+		glDisableVertexAttribArray(1);                                                  // disable vertex attribute 1
+		glDisableVertexAttribArray(2);                                                  // disable vertex attribute 1
+		glBindTexture(GL_TEXTURE_2D, fbo.fboTextureID);
+		glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * 4, &verts[0]);                                                                 //geef aan dat de posities op deze locatie zitten
+		glDrawArrays(GL_QUADS, 0, verts.size());
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisableVertexAttribArray(0);
+	}
 }
 
 /*

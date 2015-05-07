@@ -113,6 +113,7 @@
     <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="CrimeScene.h" />
     <ClInclude Include="DebugDrawer.h" />
+    <ClInclude Include="FrameBufferObject.h" />
     <ClInclude Include="GameInfo.h" />
     <ClInclude Include="InspectObject.h" />
     <ClInclude Include="ResultsFileIO.h" />
@@ -136,6 +137,7 @@
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="CrimeScene.cpp" />
     <ClCompile Include="DebugDrawer.cpp" />
+    <ClCompile Include="FrameBufferObject.cpp" />
     <ClCompile Include="GameInfo.cpp" />
     <ClCompile Include="InspectObject.cpp" />
     <ClCompile Include="ResultsFileIO.cpp" />
