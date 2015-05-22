@@ -101,7 +101,6 @@ private:
 	std::vector<MapObject*> retrievedObjects;
 	Photo* photo;
 	
-	void createScreenshot();
 	void handleInput(float elapsedTime);
 	void updateInspectingObject();
 	void handleWiiMote();

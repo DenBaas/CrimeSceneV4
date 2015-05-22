@@ -49,7 +49,7 @@ void Physics::PlayerInit(glm::vec4 position, float rotationY){
 	btQuaternion newRotation = btQuaternion(btVector3(0, 1, 0), rotationY);
 	playerBody->getWorldTransform().setRotation(newRotation);
 	world->addRigidBody(playerBody);
-	playerBody->setFriction(1.5);
+	playerBody->setFriction(2.0);
 }
 
 void Physics::FloorInit(){
