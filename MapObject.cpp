@@ -41,13 +41,16 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
 
 	glm::mat4 matrix2 = glm::mat4();
-	matrix2 = glm::translate(matrix2, this->position);
-	matrix2 = glm::rotate(matrix2, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-	matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 1, 0));
-	//matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 0, 1));
-	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
-	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
-	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.y), glm::vec3(0, 1, 0));
+	//matrix2 = glm::translate(matrix2, this->position);
+	//matrix2 = glm::rotate(matrix2, glm::radians(90.0f), glm::vec3(1, 0, 0));
+	//matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 1, 0));
+	//////matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 0, 1));
+	//matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
+	//matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
+	//matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.y), glm::vec3(0, 1, 0));
+
+
+
 
 	if (mass != -1.0f)
 	{
@@ -56,8 +59,14 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 		btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x/2, BboxSize.y/2, BboxSize.z/2));
 		btTransform startTransform;
 		startTransform.setIdentity();
-		btVector3 origin(this->position.x + (BboxSize.x / 2), this->position.y + (BboxSize.y / 2), this->position.z + (BboxSize.z / 2));
+		//btVector3 origin(this->position.x + (BboxSize.x / 2), this->position.y + (BboxSize.y / 2), this->position.z + (BboxSize.z / 2));
+		btVector3 origin(this->position.x , this->position.y + (BboxSize.y / 2), this->position.z + (BboxSize.z/2));
+		//btVector3 origin(this->position.x, this->position.y , this->position.z);
 		startTransform.setOrigin(origin);
+		btQuaternion modelRotation = btQuaternion(this->rotation.x,this->rotation.y,this->rotation.z, 0);
+		//modelRotation += btQuaternion(90, 0, 0, 0);
+		//modelRotation += btQuaternion(0, 180, 0, 0);
+		startTransform.setRotation(modelRotation);
 		btDefaultMotionState* colMotionState = new btDefaultMotionState(startTransform);
 		btVector3 fallInertia;
 		colShape->calculateLocalInertia(mass, fallInertia);
