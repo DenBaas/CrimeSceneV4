@@ -90,6 +90,12 @@
     <ClInclude Include="WiiYourself\WiiMoteWrapper.h">
       <Filter>Header Files\WiiYourself</Filter>
     </ClInclude>
+    <ClInclude Include="GameInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FrameBufferObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CrimeScene.cpp">
@@ -145,6 +151,12 @@
     </ClCompile>
     <ClCompile Include="WiiYourself\WiiMoteWrapper.cpp">
       <Filter>Source Files\WiiYourself</Filter>
+    </ClCompile>
+    <ClCompile Include="GameInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FrameBufferObject.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

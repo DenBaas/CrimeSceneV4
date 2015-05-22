@@ -34,6 +34,7 @@
 #define CONE_FAR_RADIUS 0.5f
 #include <thread>
 
+const bool FBO_ENABLED = true;
 //crimescene, oculus viewport 25fps
 //crimescene, simulator 45fps
 // after shader optimalisation
@@ -50,10 +51,10 @@ Last edit: Bas Rops - 13-06-2014
 int main(int argc, char* argv[])
 {
 	Kernel* kernel = Kernel::getInstance();
-	WiiMoteWrapper w;
-	RestApi::getInstance();
+	GameInfo *g = new GameInfo();
+	WiiMoteWrapper w(g);
+	//RestApi::getInstance();
 	CrimeScene* application = nullptr;
-
 	for (int i = 1; i < argc; ++i)
 	{
 		if (strcmp(argv[i], "--config") == 0)
@@ -64,11 +65,11 @@ int main(int argc, char* argv[])
 		if (strcmp(argv[i], "--map") == 0)
 		{
 			i++;
-			application = new CrimeScene(argv[i],&w);
+			application = new CrimeScene(argv[i],&w,g);
 		}
 	}
 	if (application == nullptr)
-		application = new CrimeScene("",&w);
+		application = new CrimeScene("",&w,g);
 	thread t([&](WiiMoteWrapper * w2){ w2->start(); }, &w);
 	//RestApi::getInstance()->registerAsEnvironment();
 
@@ -77,6 +78,7 @@ int main(int argc, char* argv[])
 
 	delete application;
 	w.continueGame = false;
+	delete g;
 	t.join();
 	return 0;
 }
@@ -86,10 +88,12 @@ Constructor
 Author: Bas Rops - 25-04-2014
 Last edit: Bas Rops - 05-06-2014
 */
-CrimeScene::CrimeScene(std::string filename, WiiMoteWrapper* w)
+CrimeScene::CrimeScene(std::string filename, WiiMoteWrapper* w, GameInfo * g)
 {
 	this->mapFilename = filename;
-	this->wiimoteAndNunchuk = w;
+	this->wiimoteData = w;
+	Kernel* kernel = Kernel::getInstance();
+	infoForGame = g;	
 }
 
 /*
@@ -148,6 +152,10 @@ void CrimeScene::init()
 {
 	initDevices();
 	initOpenGL();
+	if (FBO_ENABLED){
+		Kernel* kernel = Kernel::getInstance();
+		fbo.init(kernel->getWindowWidth(), kernel->getWindowHeight());
+	}
 	initSpotlight();
 	initShaders();
 
@@ -205,6 +213,70 @@ irrklang::ISound* CrimeScene::playSound2D(std::string filename, bool loop, bool 
 	}
 }
 
+void CrimeScene::handleWiiMote()
+{
+	if (infoForGame->status != 1)
+		return;
+	wiimote_state::buttons buttons = wiimoteData->buttonsPressed;	
+	if (buttons.Home()){
+
+	}
+	if (buttons.Plus()&& !buttons.Minus()){
+		infoForGame->gamemode++;
+		infoForGame->gamemode %= infoForGame->MAXMODES;
+		infoForGame->zoomfactor = 0;
+	}
+	if (buttons.Minus() && !buttons.Plus()){
+		infoForGame->gamemode--;
+		if (infoForGame->gamemode < 0)
+			infoForGame->gamemode = 0;
+		infoForGame->gamemode = 0;
+	}
+	float r = M_PI/20;
+	if (buttons.Left())
+		infoForGame->rotation -= r;
+	if (buttons.Right())
+		infoForGame->rotation += r;
+	switch (infoForGame->gamemode){
+	case 0:
+		if (buttons.A()){
+
+		}
+		if (buttons.B()){
+
+		}
+		break;
+	case 1:
+		if (buttons.A()){
+
+		}
+		if (buttons.B()){
+
+		}
+		if (wiimoteData->nunchukInfo.C){
+
+		}
+		if (wiimoteData->nunchukInfo.Z){
+
+		}
+		break;
+	case 2:
+		if (buttons.A()){
+
+		}
+		if (buttons.B()){
+
+		}
+		if (wiimoteData->nunchukInfo.C){
+
+		}
+		if (wiimoteData->nunchukInfo.Z){
+
+		}
+		break;
+	}
+}
+
 /*
 "Update-function" that does stuff before the draw function gets called
 Author: Bas Rops - 25-04-2014
@@ -212,17 +284,17 @@ Last edit: Bas Rops - 11-06-2014
 */
 void CrimeScene::preFrame(double frameTime, double totalTime)
 {
+	handleWiiMote();
 	clock_t clock_end = clock();
 	GLfloat timeFctr = GLfloat(clock_end - clock_start) / CLOCKS_PER_SEC; // calculate time(s) elapsed since last frame
 	clock_start = clock();
 	toolboxPanel->setSelector(wandRay);
-
 	handleInput(frameTime);
-
 	//Only update the toolbox when an object is being inspected
 	if (inspectingObject)
 		updateInspectingObject();
-	physics->UpdateWorld(timeFctr,glm::vec3(0,0,0),0);
+	float r = infoForGame->rotation;
+	physics->UpdateWorld(timeFctr, btVector3(wiimoteData->nunchukInfo.Joystick.X, 0, -wiimoteData->nunchukInfo.Joystick.Y), r);
 	btVector3 posOfplayer = physics->playerBody->getCenterOfMassPosition();
 	soundEngine->setListenerPosition(irrklang::vec3df(0, 0, 0),
 		irrklang::vec3df(posOfplayer.x(), posOfplayer.y(), posOfplayer.z()));
@@ -252,7 +324,10 @@ void CrimeScene::preFrame(double frameTime, double totalTime)
 			}
 		}
 	}
+
 }
+
+
 
 /*
 Handles input from wand, buttons, keyboard presses, etc
@@ -381,17 +456,29 @@ Last edit: Ricardo Blommers - 09-06-2014
 */
 void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {
-	glm::mat4 viewMatrix = modelViewMatrix * player->getPlayerMatrix();
+	GLint viewport[4];
+	GLint oldFbo;
+	if (FBO_ENABLED){		
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldFbo);		
+		glGetIntegerv(GL_VIEWPORT, viewport);
+		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo.fboID);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	}
+	glm::mat4 viewMatrix = modelViewMatrix*player->getPlayerMatrix();
+	viewMatrix = glm::rotate(viewMatrix, -infoForGame->rotation, glm::vec3(0, 1, 0));
+	btVector3 f = physics->playerBody->getWorldTransform().getOrigin();
+	viewMatrix = glm::translate(viewMatrix, glm::vec3(-f.x(), -f.y()-1, -f.z()));
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(0);
 	//TODO fix color
 	glPushMatrix();
 	drawWand();
 	glPopMatrix();
-	//return;
-	//Only draw the axis and boundingboxes in debug mode
-#ifdef _DEBUG
-	//drawAxis();
+	glPushMatrix();
+	drawAxis();
+	glPopMatrix();
+	//return;	
 	float *PhysMatrix = glm::value_ptr(viewMatrix);
 
 	glLoadMatrixf(PhysMatrix);
@@ -400,7 +487,6 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	physics->world->debugDrawWorld();
 	glPopMatrix();
 	//map->drawBoundingBoxes(&viewMatrix);
-#endif // _DEBUG
 
 	//Draw the map's cubemap
 	map->drawCubemap(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);
@@ -419,7 +505,29 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		toolboxPanel->draw();
 		glDisable(GL_CULL_FACE);
 	}
-	
+	if (FBO_ENABLED){
+		glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
+		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+		glDisable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		std::vector<glm::vec2> verts;
+		verts.push_back(glm::vec2(-1, -1));
+		verts.push_back(glm::vec2(1, -1));
+		verts.push_back(glm::vec2(1, 1));
+		verts.push_back(glm::vec2(-1, 1));
+		ShaderProgram* curFBOShader = fbo.fboShaders[fbo.currentShader];
+		curFBOShader->use();
+		curFBOShader->setUniformMatrix4("modelViewProjectionMatrix", modelViewMatrix);		
+		glBindVertexArray(0);
+		glEnableVertexAttribArray(0);                                                   // en vertex attribute 1
+		glDisableVertexAttribArray(1);                                                  // disable vertex attribute 1
+		glDisableVertexAttribArray(2);                                                  // disable vertex attribute 1
+		glBindTexture(GL_TEXTURE_2D, fbo.fboTextureID);
+		glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * 4, &verts[0]);                                                                 //geef aan dat de posities op deze locatie zitten
+		glDrawArrays(GL_QUADS, 0, verts.size());
+		glBindTexture(GL_TEXTURE_2D, 0);
+		glDisableVertexAttribArray(0);
+	}
 }
 
 /*

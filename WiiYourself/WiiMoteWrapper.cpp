@@ -3,14 +3,16 @@
 
 using namespace std;
 
-WiiMoteWrapper::WiiMoteWrapper()
+WiiMoteWrapper::WiiMoteWrapper(GameInfo * g)
 {
 	continueGame = true;
-	status = 0; //0 = wachten 1 = succes -1 = niet succes
+	infoForGame = g;
+	infoForGame->status = 0; //0 = wachten 1 = succes -1 = niet succes	
 }
 
 void WiiMoteWrapper::start(){
 	wiiMoteMainStart();
+
 }
 
 WiiMoteWrapper::~WiiMoteWrapper()
@@ -122,15 +124,16 @@ reconnect:
 	if (!continueGame){
 		return 0;
 	}
-	// connected - light all LEDs
-	remote.SetLEDs(0x0f);
-	status = 1;
+	infoForGame->status = 1;
+	WIIMOTE = true;
 #ifdef USE_BEEPS_AND_DELAYS
 	//Beep(1000, 300); 
 	Sleep(2000);
 #endif
-	while (continueGame)
+	while (continueGame && !remote.ConnectionLost())
 	{
+		NUNCHUK = remote.NunchukConnected();
+		MOTIONPLUS = remote.MotionPlusConnected();
 		// IMPORTANT: the wiimote state needs to be refreshed each pass
 		while (remote.RefreshState() == NO_CHANGE)
 			Sleep(1); // // don't hog the CPU if nothing changed
@@ -141,15 +144,11 @@ reconnect:
 		}
 		// TEMP: Minus button disables MotionPlus (if connected) to allow its
 		//        own extension port to work
-		static bool last_minus = false;
+		/*static bool last_minus = false;
 		if (remote.Button.Minus() && !last_minus &&
 			(remote.ExtensionType == wiimote_state::MOTION_PLUS))
 			remote.DisableMotionPlus();
-		last_minus = remote.Button.Minus();
-
-		// actions for buttons just pressed/released:
-		static bool last_A = false, last_One = false, last_Two = false;
-
+		last_minus = remote.Button.Minus();*/
 #define ON_PRESS_RELEASE(button, pressed_action, released_action)	\
 			{ bool pressed = remote.Button.button();						\
 			  if(pressed)													\
@@ -166,14 +165,15 @@ reconnect:
 			// skip unused bits
 			if ((wiimote_state::buttons::ALL & mask) == 0)
 				continue;
-
 			const TCHAR* button_name = wiimote::ButtonNameFromBit[bit];
 			bool		 pressed = ((remote.Button.Bits & mask) != 0);
+			previousButtons = buttonsPressed;
 			buttonsPressed = remote.Button;
-			if (remote.NunchukConnected())
-				nunchukInfo = remote.Nunchuk;
+			nunchukInfo = remote.Nunchuk;
+			batteryLevel = remote.BatteryRaw;
 		}
 	}
+	WIIMOTE = NUNCHUK = MOTIONPLUS = false;
 	// disconnect (auto-happens on wiimote destruction anyway, but let's play nice)
 	remote.Disconnect();
 	CloseHandle(console);

@@ -18,6 +18,8 @@
 #include <ctime>
 
 #include "WiiYourself\WiiMoteWrapper.h"
+#include "GameInfo.h"
+#include "FrameBufferObject.h"
 
 class cTexture;
 class cModel;
@@ -52,8 +54,10 @@ class CrimeScene: public Application
 	glm::vec3 wandTarget;
 
 	Physics* physics;
-	WiiMoteWrapper * wiimoteAndNunchuk;
+	WiiMoteWrapper * wiimoteData;
 	clock_t clock_start;
+	FrameBufferObject fbo;
+	
 public:
 	enum class Uniforms
 	{
@@ -100,6 +104,7 @@ private:
 	void createScreenshot();
 	void handleInput(float elapsedTime);
 	void updateInspectingObject();
+	void handleWiiMote();
 
 	void draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix);
 	void drawMap(glm::mat4* projectionMatrix, glm::mat4* viewMatrix);
@@ -113,8 +118,10 @@ private:
 	void initSpotlight();
 
 public:
-	CrimeScene(std::string filename, WiiMoteWrapper* w);
+	CrimeScene(std::string filename, WiiMoteWrapper* w, GameInfo * g);
 	~CrimeScene();
+
+	GameInfo * infoForGame;
 
 	void consoleExit();
 	irrklang::ISound* playSound2D(std::string filename, bool loop, bool startPaused, bool track = true);

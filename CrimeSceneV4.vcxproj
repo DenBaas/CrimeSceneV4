@@ -97,6 +97,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>$(SolutionDir)\Libraries\bullet3\src; %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -112,6 +113,8 @@
     <ClInclude Include="AssimpModel.h" />
     <ClInclude Include="CrimeScene.h" />
     <ClInclude Include="DebugDrawer.h" />
+    <ClInclude Include="FrameBufferObject.h" />
+    <ClInclude Include="GameInfo.h" />
     <ClInclude Include="InspectObject.h" />
     <ClInclude Include="ResultsFileIO.h" />
     <ClInclude Include="Map.h" />
@@ -134,6 +137,8 @@
     <ClCompile Include="AssimpModel.cpp" />
     <ClCompile Include="CrimeScene.cpp" />
     <ClCompile Include="DebugDrawer.cpp" />
+    <ClCompile Include="FrameBufferObject.cpp" />
+    <ClCompile Include="GameInfo.cpp" />
     <ClCompile Include="InspectObject.cpp" />
     <ClCompile Include="ResultsFileIO.cpp" />
     <ClCompile Include="Map.cpp" />
