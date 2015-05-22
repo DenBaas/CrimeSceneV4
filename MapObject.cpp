@@ -38,9 +38,18 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
 
+	glm::mat4 matrix2 = glm::mat4();
+	matrix2 = glm::translate(matrix2, this->position);
+	matrix2 = glm::rotate(matrix2, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+	matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 1, 0));
+	//matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 0, 1));
+	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
+	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
+	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.y), glm::vec3(0, 1, 0));
+
 	if (mass != -1.0f)
 	{
-		Bbox boundingBox = this->getBoundingBoxWithOutViewMatrix();
+		Bbox boundingBox = this->getBoundingBox(&matrix2);
 		glm::vec3 BboxSize = boundingBox.mMax - boundingBox.mMin;
 
 		btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x/2, BboxSize.y/2, BboxSize.z/2));
@@ -369,7 +378,7 @@ Bbox MapObject::getBoundingBox(glm::mat4* viewMatrix)
 		glm::vec3 min = boundingBox.mMin;
 		glm::vec3 max = boundingBox.mMax;
 
-		glm::mat4 modelViewMatrix = *viewMatrix * this->modelMatrix;
+		glm::mat4 modelViewMatrix = *viewMatrix;
 
 		std::vector<glm::vec4> vertices;
 		//Calculate the axis-aligned bounding box of the object
