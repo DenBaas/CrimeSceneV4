@@ -34,7 +34,7 @@
 #define CONE_FAR_RADIUS 0.5f
 #include <thread>
 
-const bool FBO_ENABLED = true;
+const bool FBO_ENABLED = !true;
 //crimescene, oculus viewport 25fps
 //crimescene, simulator 45fps
 // after shader optimalisation
@@ -92,7 +92,6 @@ CrimeScene::CrimeScene(std::string filename, WiiMoteWrapper* w, GameInfo * g)
 {
 	this->mapFilename = filename;
 	this->wiimoteData = w;
-	Kernel* kernel = Kernel::getInstance();
 	infoForGame = g;	
 }
 
@@ -152,8 +151,8 @@ void CrimeScene::init()
 {
 	initDevices();
 	initOpenGL();
-	if (FBO_ENABLED){
-		Kernel* kernel = Kernel::getInstance();
+	Kernel* kernel = Kernel::getInstance();
+	if (FBO_ENABLED){		
 		fbo.init(kernel->getWindowWidth(), kernel->getWindowHeight());
 	}
 	initSpotlight();
@@ -178,7 +177,7 @@ void CrimeScene::init()
 	if (music != nullptr && music->getIsPaused())
 		music->setIsPaused(false);
 
-	photo = new Photo(1024, 1024);
+	photo = new Photo();
 	physics = new Physics();
 	
 	physics->WorldInit();
@@ -233,10 +232,17 @@ void CrimeScene::handleWiiMote()
 		infoForGame->gamemode = 0;
 	}
 	float r = M_PI/20;
+	float r2 = M_PI / 40;
 	if (buttons.Left())
-		infoForGame->rotation -= r;
+		infoForGame->rotationHorizontal += r;
 	if (buttons.Right())
-		infoForGame->rotation += r;
+		infoForGame->rotationHorizontal -= r;
+	if (buttons.Up() && infoForGame->rotationVertical > -3*r2){
+		infoForGame->rotationVertical -= r2;		
+	}
+	if (buttons.Down() && infoForGame->rotationVertical < 3 * r2){
+		infoForGame->rotationVertical += r2;
+	}
 	switch (infoForGame->gamemode){
 	case 0:
 		if (buttons.A()){
@@ -247,12 +253,8 @@ void CrimeScene::handleWiiMote()
 		}
 		break;
 	case 1:
-		if (buttons.A()){
-
-		}
-		if (buttons.B()){
-
-		}
+		infoForGame->takeScreenshot = buttons.A();
+		infoForGame->flashlightEnabled = buttons.B();
 		if (wiimoteData->nunchukInfo.C){
 
 		}
@@ -293,7 +295,7 @@ void CrimeScene::preFrame(double frameTime, double totalTime)
 	//Only update the toolbox when an object is being inspected
 	if (inspectingObject)
 		updateInspectingObject();
-	float r = infoForGame->rotation;
+	float r = infoForGame->rotationHorizontal;
 	physics->UpdateWorld(timeFctr, btVector3(wiimoteData->nunchukInfo.Joystick.X, 0, -wiimoteData->nunchukInfo.Joystick.Y), r);
 	btVector3 posOfplayer = physics->playerBody->getCenterOfMassPosition();
 	soundEngine->setListenerPosition(irrklang::vec3df(0, 0, 0),
@@ -407,18 +409,13 @@ void CrimeScene::handleInput(float elapsedTime)
 	}
 #pragma endregion
 
-#pragma region Page down button
-	if (PageDownButton.getData() == TOGGLE_ON && !inspectingObject)
-		createScreenshot();
-#pragma endregion
-
 #pragma region player movement
-	if (!inspectingObject)
+	/*if (!inspectingObject)
 		if (hydraLeft.isInitialized())
 		{
 			player->update(hydraLeft.getData(), hydraRight.getData(), elapsedTime);
 		}
-		else
+		else*/
 			player->update(head.getData());
 #pragma endregion
 
@@ -456,17 +453,22 @@ Last edit: Ricardo Blommers - 09-06-2014
 */
 void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix)
 {
+	if (infoForGame->takeScreenshot){
+		photo->bind();
+	}
 	GLint viewport[4];
 	GLint oldFbo;
-	if (FBO_ENABLED){		
-		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldFbo);		
+	if (FBO_ENABLED){
+		glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldFbo);
 		glGetIntegerv(GL_VIEWPORT, viewport);
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		glBindFramebuffer(GL_FRAMEBUFFER, fbo.fboID);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	glm::mat4 viewMatrix = modelViewMatrix*player->getPlayerMatrix();
-	viewMatrix = glm::rotate(viewMatrix, -infoForGame->rotation, glm::vec3(0, 1, 0));
+	viewMatrix = glm::rotate(viewMatrix, -infoForGame->rotationVertical, glm::vec3(1, 0, 0));
+	viewMatrix = glm::rotate(viewMatrix, -infoForGame->rotationHorizontal, glm::vec3(0, 1, 0));
+	
 	btVector3 f = physics->playerBody->getWorldTransform().getOrigin();
 	viewMatrix = glm::translate(viewMatrix, glm::vec3(-f.x(), -f.y()-1, -f.z()));
 	glClear(GL_DEPTH_BUFFER_BIT);
@@ -509,24 +511,21 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);
-		std::vector<glm::vec2> verts;
-		verts.push_back(glm::vec2(-1, -1));
-		verts.push_back(glm::vec2(1, -1));
-		verts.push_back(glm::vec2(1, 1));
-		verts.push_back(glm::vec2(-1, 1));
+		glDisable(GL_BLEND);		
 		ShaderProgram* curFBOShader = fbo.fboShaders[fbo.currentShader];
 		curFBOShader->use();
-		curFBOShader->setUniformMatrix4("modelViewProjectionMatrix", modelViewMatrix);		
-		glBindVertexArray(0);
-		glEnableVertexAttribArray(0);                                                   // en vertex attribute 1
-		glDisableVertexAttribArray(1);                                                  // disable vertex attribute 1
-		glDisableVertexAttribArray(2);                                                  // disable vertex attribute 1
-		glBindTexture(GL_TEXTURE_2D, fbo.fboTextureID);
-		glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * 4, &verts[0]);                                                                 //geef aan dat de posities op deze locatie zitten
-		glDrawArrays(GL_QUADS, 0, verts.size());
-		glBindTexture(GL_TEXTURE_2D, 0);
-		glDisableVertexAttribArray(0);
+		GLuint pass_3O = curFBOShader->getUniformLocation("fboTextureID");
+		GLuint pass_3I = curFBOShader->getUniformLocation("infoTextureID");
+		curFBOShader->setUniformMatrix4("modelViewProjectionMatrix", modelViewMatrix);
+		fbo.infoTextureID = fbo.fboTextureID;
+		glUniform1i(pass_3O, 0);
+		glUniform1i(pass_3I, 1);
+		fbo.use();		
+	}
+	if (infoForGame->takeScreenshot){
+		infoForGame->takeScreenshot = false;
+		photo->unbind();
+		photo->generateImage();
 	}
 }
 
@@ -779,49 +778,4 @@ void CrimeScene::drawAxis()
 	glVertex3f(0, 0, 0);
 	glVertex3f(0, 0, 1);
 	glEnd();
-}
-
-/*
-Author: Ricardo Blommers - 03-06-2014
-Last edit: Ricardo Blommers - 26-06-2014
-*/
-void CrimeScene::createScreenshot()
-{
-	glm::mat4 playerMatrix = player->getPlayerMatrix();
-	glm::mat4 viewMatrix = wand.getData();
-	glm::mat4 proj = glm::perspective(glm::radians(90.0f), 1.0f, 0.01f, 1000.0f);
-
-	// Altercations to calculate the viewMatrix
-	glm::vec4 playerPosition = playerMatrix * glm::vec4(0, 0, 0, 1);
-	glm::vec4 playerDirection = playerMatrix * glm::vec4(0, 0, -1, 1);
-
-	glm::vec4 wandPosition = viewMatrix * glm::vec4(0, 0, 0, 1);
-	glm::vec4 wandDirection = viewMatrix * glm::vec4(0, 0, -1, 1);
-	glm::vec4 wandUp = viewMatrix * glm::vec4(0, 1, 0, 0);
-
-	glm::vec4 position = wandPosition + playerPosition;
-	glm::vec4 direction = wandDirection + playerDirection;
-
-	// With the Cave's matrices generally being a double reverse quadruple backflipped 
-	// inverted enigma of a creation, this calculation is employed to flip the 
-	// direction of the camera into the right direction
-	// (since both vec3's are inverted when creating the matrix)
-	glm::vec4 compensation = direction - position;
-	glm::vec4 newDirection = position - compensation;
-	glm::mat4 view = glm::lookAt(-glm::vec3(position), -glm::vec3(newDirection), glm::vec3(wandUp));
-
-	// Temporarely store the original viewport
-	int viewport[4];
-	glGetIntegerv(GL_VIEWPORT, viewport);
-
-	// Temporarely replace the viewport to enable larger screenshots
-	glViewport(0, 0, 1024, 1024);
-	photo->bind();
-	draw(proj, view);
-	photo->unbind();
-
-	// Reinstate original viewport
-	glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
-
-	photo->generateImage();
 }

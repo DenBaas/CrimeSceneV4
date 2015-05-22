@@ -2,7 +2,8 @@
 #include "AssimpModel.h"
 
 #include <CaveLib\Shader.h>
-
+#define _USE_MATH_DEFINES
+#include <math.h>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
@@ -48,7 +49,9 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 		btTransform startTransform;
 		startTransform.setIdentity();
 		btVector3 origin(this->position.x + (BboxSize.x / 2), this->position.y + (BboxSize.y / 2), this->position.z + (BboxSize.z / 2));
+		btQuaternion newrotation = btQuaternion(this->rotation.x, this->rotation.y, this->rotation.z, 0);
 		startTransform.setOrigin(origin);
+		//startTransform.setRotation(newrotation);
 		btDefaultMotionState* colMotionState = new btDefaultMotionState(startTransform);
 		btVector3 fallInertia;
 		colShape->calculateLocalInertia(mass, fallInertia);
@@ -266,8 +269,27 @@ void MapObject::draw(Shader<CrimeScene::Uniforms>* shader)
 			//shader->setUniform(CrimeScene::Uniforms::scale, this->scale); //TODO?
 			shader->setUniform(CrimeScene::Uniforms::objectVisible, this->standardVisible);
 		}
-
-		this->model->draw(shader, &(this->modelMatrix));
+		glm::vec3 translation(0,0,0);
+		glm::mat4 newMat(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		if (BoundingBoxPhys){
+			btScalar transform[16];
+			btVector3 data =  this->BoundingBoxPhys->getWorldTransform().getOrigin();
+			translation = glm::vec3(data.x(), data.y(), data.z());
+			BoundingBoxPhys->getWorldTransform().getOpenGLMatrix(transform);
+			newMat = glm::mat4(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5], transform[6], transform[7], transform[8], transform[9], transform[10], transform[11], transform[12], transform[13], transform[14], transform[15]);
+			
+			position = translation;
+			btQuaternion rot = BoundingBoxPhys->getWorldTransform().getRotation();
+			btVector3 axis = rot.getAxis();
+			float angle = rot.getAngle();
+			angle = M_PI_2;
+			//put it to the ground
+			newMat = glm::translate(newMat, glm::vec3(0, -position.y, 0));
+			newMat = glm::rotate(newMat,-angle, glm::vec3(0,1,0) );
+		}
+		this->model->draw(shader, &newMat);
+		//model->draw(shader, &modelMatrix);
+		
 	}
 }
 

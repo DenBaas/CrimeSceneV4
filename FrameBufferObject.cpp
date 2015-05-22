@@ -10,11 +10,11 @@ FrameBufferObject::~FrameBufferObject()
 {
 }
 
-void FrameBufferObject::bind(){
-
+void FrameBufferObject::bind(bool FBO_ENABLED){
+	
 }
 
-void FrameBufferObject::unbind(){
+void FrameBufferObject::unbind(bool FBO_ENABLED){
 
 }
 
@@ -46,11 +46,25 @@ void FrameBufferObject::init(int width, int height){
 		for each (ShaderProgram* program in fboShaders)
 		{
 			program->link();
-			program->setUniformInt("s_texture", 0);
+			program->setUniformInt("frame_texture", 0);
+			program->setUniformInt("info_texture", 1);
 		}
 	}
 }
 
 void FrameBufferObject::use(){
-
+	glBindVertexArray(0);
+	glEnableVertexAttribArray(0);                                                   // en vertex attribute 1
+	glDisableVertexAttribArray(1);                                                  // disable vertex attribute 1
+	glDisableVertexAttribArray(2);                                                  // disable vertex attribute 1
+	glBindTexture(GL_TEXTURE_2D, fboTextureID);	
+	std::vector<glm::vec2> verts;
+	verts.push_back(glm::vec2(-1, -1));
+	verts.push_back(glm::vec2(1, -1));
+	verts.push_back(glm::vec2(1, 1));
+	verts.push_back(glm::vec2(-1, 1));
+	glVertexAttribPointer(0, 2, GL_FLOAT, false, 2 * 4, &verts[0]);                                                                 //geef aan dat de posities op deze locatie zitten
+	glDrawArrays(GL_QUADS, 0, verts.size());
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glDisableVertexAttribArray(0);
 }
