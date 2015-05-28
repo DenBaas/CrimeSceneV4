@@ -42,13 +42,13 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
 
 	glm::mat4 matrix2 = glm::mat4();
-	//matrix2 = glm::translate(matrix2, this->position);
-	//matrix2 = glm::rotate(matrix2, glm::radians(90.0f), glm::vec3(1, 0, 0));
-	//matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 1, 0));
-	//////matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 0, 1));
-	//matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
-	//matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
-	//matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.y), glm::vec3(0, 1, 0));
+	matrix2 = glm::translate(matrix2, this->position);
+	matrix2 = glm::rotate(matrix2, glm::radians(90.0f), glm::vec3(1, 0, 0));
+	matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 1, 0));
+	////matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 0, 1));
+	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
+	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
+	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.y), glm::vec3(0, 1, 0));
 
 
 
@@ -283,26 +283,26 @@ void MapObject::draw(Shader<CrimeScene::Uniforms>* shader)
 			//shader->setUniform(CrimeScene::Uniforms::scale, this->scale); //TODO?
 			shader->setUniform(CrimeScene::Uniforms::objectVisible, this->standardVisible);
 		}
-		glm::vec3 translation(0,0,0);
-		glm::mat4 newMat(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-		if (BoundingBoxPhys){
-			btScalar transform[16];
-			btVector3 data =  this->BoundingBoxPhys->getWorldTransform().getOrigin();
-			translation = glm::vec3(data.x(), data.y(), data.z());
-			BoundingBoxPhys->getWorldTransform().getOpenGLMatrix(transform);
-			newMat = glm::mat4(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5], transform[6], transform[7], transform[8], transform[9], transform[10], transform[11], transform[12], transform[13], transform[14], transform[15]);
-			
-			position = translation;
-			btQuaternion rot = BoundingBoxPhys->getWorldTransform().getRotation();
-			btVector3 axis = rot.getAxis();
-			float angle = rot.getAngle();
-			angle = M_PI_2;
-			//put it to the ground
-			newMat = glm::translate(newMat, glm::vec3(0, -position.y, 0));
-			newMat = glm::rotate(newMat,-angle, glm::vec3(0,1,0) );
-		}
-		this->model->draw(shader, &newMat);
-		//model->draw(shader, &modelMatrix);
+		//glm::vec3 translation(0,0,0);
+		//glm::mat4 newMat(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		//if (BoundingBoxPhys){
+		//	btScalar transform[16];
+		//	btVector3 data =  this->BoundingBoxPhys->getWorldTransform().getOrigin();
+		//	translation = glm::vec3(data.x(), data.y(), data.z());
+		//	BoundingBoxPhys->getWorldTransform().getOpenGLMatrix(transform);
+		//	newMat = glm::mat4(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5], transform[6], transform[7], transform[8], transform[9], transform[10], transform[11], transform[12], transform[13], transform[14], transform[15]);
+		//	
+		//	position = translation;
+		//	btQuaternion rot = BoundingBoxPhys->getWorldTransform().getRotation();
+		//	btVector3 axis = rot.getAxis();
+		//	float angle = rot.getAngle();
+		//	angle = M_PI_2;
+		//	//put it to the ground
+		//	newMat = glm::translate(newMat, glm::vec3(0, -position.y, 0));
+		//	newMat = glm::rotate(newMat,-angle, glm::vec3(0,1,0) );
+		//}
+		//this->model->draw(shader, &newMat);
+		model->draw(shader, &modelMatrix);
 		
 	}
 }
