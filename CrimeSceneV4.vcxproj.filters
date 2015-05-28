@@ -168,5 +168,35 @@
     <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\objectPolylight.frag" />
     <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\objectPolylight.vert" />
     <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\spotlightCone.vert" />
+    <None Include="Shaders\cubemap.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\cubemap.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\default.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\default.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\FBOshader.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\FBOshader.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\objectPolylight.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\objectPolylight.vert">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\spotlightCone.frag">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Shaders\spotlightCone.vert">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

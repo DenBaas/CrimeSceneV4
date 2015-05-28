@@ -163,6 +163,16 @@
     <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\objectPolylight.frag" />
     <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\objectPolylight.vert" />
     <None Include="..\..\..\Runtime\data\CrimeSceneV4\Shaders\spotlightCone.vert" />
+    <None Include="Shaders\cubemap.frag" />
+    <None Include="Shaders\cubemap.vert" />
+    <None Include="Shaders\default.frag" />
+    <None Include="Shaders\default.vert" />
+    <None Include="Shaders\FBOshader.frag" />
+    <None Include="Shaders\FBOshader.vert" />
+    <None Include="Shaders\objectPolylight.frag" />
+    <None Include="Shaders\objectPolylight.vert" />
+    <None Include="Shaders\spotlightCone.frag" />
+    <None Include="Shaders\spotlightCone.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

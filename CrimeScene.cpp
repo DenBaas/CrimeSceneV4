@@ -34,7 +34,9 @@
 #define CONE_FAR_RADIUS 0.5f
 #include <thread>
 
-const bool FBO_ENABLED = !true;
+
+const bool FBO_ENABLED = false;
+
 //crimescene, oculus viewport 25fps
 //crimescene, simulator 45fps
 // after shader optimalisation
