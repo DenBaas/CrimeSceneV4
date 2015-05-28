@@ -56,7 +56,7 @@ void Physics::FloorInit(){
 	float mass = 0;//kg
 	btVector3 fallInertia;
 	btBoxShape* pBoxShape = new btBoxShape(btVector3(1000, 0.1, 1000));
-	btMotionState* m_pMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-500, -0.1, -500)));
+	btMotionState* m_pMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-500, -1.5, -500)));
 	pBoxShape->calculateLocalInertia(mass, fallInertia);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, m_pMotionState, pBoxShape, fallInertia);
 	floor = new btRigidBody(rbInfo);

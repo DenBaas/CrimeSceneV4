@@ -23,8 +23,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 {
 	this->model = model;
 	this->position = position;
-	if (this->position.y < 0)
-		this->position.y = 0;
+	//position.y = 0;
 	this->rotation = rotation;
 	this->scale = scale;
 	this->interactable = interactable;
@@ -32,9 +31,10 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->description = description;
 
 	this->modelMatrix = glm::mat4();
-	this->modelMatrix = glm::translate(this->modelMatrix, this->position);
+	
 	//Add 90 to x-rotation and 180 to y-rotation to compensate for rotation in file,
 	//because the mapeditor and simulator have different object rotations.
+	this->modelMatrix = glm::translate(this->modelMatrix, this->position);
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-90.0f), glm::vec3(1, 0, 0));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(180.0f), glm::vec3(0, 1, 0));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
@@ -49,7 +49,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
 	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
 	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.y), glm::vec3(0, 1, 0));
-
+	
 	if (mass != -1.0f)
 	{
 		Bbox boundingBox = this->getBoundingBox(&matrix2);
@@ -57,7 +57,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 		btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x/2, BboxSize.y/2, BboxSize.z/2));
 		btTransform startTransform;
 		startTransform.setIdentity();
-		btVector3 origin(this->position.x + (BboxSize.x / 2), this->position.y + (BboxSize.y / 2), this->position.z + (BboxSize.z / 2));
+		btVector3 origin(this->position.x + (BboxSize.x / 2), this->position.y + (BboxSize.y/2), this->position.z + (BboxSize.z / 2));
 		btQuaternion newrotation = btQuaternion(this->rotation.x, this->rotation.y, this->rotation.z, 0);
 		startTransform.setOrigin(origin);
 		//startTransform.setRotation(newrotation);
@@ -278,23 +278,27 @@ void MapObject::draw(Shader<CrimeScene::Uniforms>* shader)
 			//shader->setUniform(CrimeScene::Uniforms::scale, this->scale); //TODO?
 			shader->setUniform(CrimeScene::Uniforms::objectVisible, this->standardVisible);
 		}
-		glm::vec3 translation(0,0,0);
 		glm::mat4 newMat(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 		if (BoundingBoxPhys){
 			btScalar transform[16];
-			btVector3 data =  this->BoundingBoxPhys->getWorldTransform().getOrigin();
-			translation = glm::vec3(data.x(), data.y(), data.z());
 			BoundingBoxPhys->getWorldTransform().getOpenGLMatrix(transform);
-			newMat = glm::mat4(transform[0], transform[1], transform[2], transform[3], transform[4], transform[5], transform[6], transform[7], transform[8], transform[9], transform[10], transform[11], transform[12], transform[13], transform[14], transform[15]);
-			
-			position = translation;
+			float dArray[16] = { 0.0 };
+			const float *pSource = (const float*) glm::value_ptr(modelMatrix);
+			for (int i = 0; i < 16; ++i)
+				dArray[i] = pSource[i];
+			btVector3 trans = BoundingBoxPhys->getCenterOfMassPosition();
+			newMat = glm::mat4(pSource[0], pSource[1], pSource[2], pSource[3],
+				pSource[4], pSource[5], pSource[6], pSource[7],
+				pSource[8], pSource[9], pSource[10], pSource[11],
+				//transform[12], transform[13], transform[14], transform[15]);
+				trans.x(), trans.y(), trans.z(), transform[15]);
 			btQuaternion rot = BoundingBoxPhys->getWorldTransform().getRotation();
 			btVector3 axis = rot.getAxis();
 			float angle = rot.getAngle();
-			angle = M_PI_2;
 			//put it to the ground
-			newMat = glm::translate(newMat, glm::vec3(0, -position.y, 0));
-			newMat = glm::rotate(newMat,-angle, glm::vec3(0,1,0) );
+			newMat = glm::rotate(newMat,angle, glm::vec3(axis.x(),axis.y(),axis.z()));
+			
+
 		}
 		this->model->draw(shader, &newMat);
 		//model->draw(shader, &modelMatrix);
