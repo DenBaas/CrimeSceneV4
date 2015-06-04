@@ -171,6 +171,11 @@ reconnect:
 			buttonsPressed = remote.Button;
 			nunchukInfo = remote.Nunchuk;
 			batteryLevel = remote.BatteryRaw;
+			if (remote.MotionPlusConnected()){
+				if (remote.MotionPlusEnabled())
+					remote.EnableMotionPlus();
+				printf("%f\n", remote.MotionPlus.Raw.Pitch);
+			}
 		}
 	}
 	WIIMOTE = NUNCHUK = MOTIONPLUS = false;

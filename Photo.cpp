@@ -62,9 +62,12 @@ void Photo::generateImage()
 	}
 	std::vector<float> pixels(width * height * 4);
 
-	bind();
+	//bind();
+	GLint oldFbo;
+	glGetIntegerv(GL_FRAMEBUFFER_BINDING, &oldFbo);
+	glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
 	glReadPixels(0, 0, width, height, GL_RGBA, GL_FLOAT, &pixels[0]);
-	unbind();
+	//unbind();
 	thread saveAsync([&](Photo * p, std::vector<float> * p2){p->writeToPng(*p2); }, this, &pixels);
 	saveAsync.join();
 }

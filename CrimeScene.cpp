@@ -25,6 +25,7 @@
 #include <glm\gtc\type_ptr.hpp>
 
 #include <time.h>
+#include <fstream>
 
 #define _USE_MATH_DEFINES
 #include <math.h>
@@ -36,13 +37,6 @@
 
 
 const bool FBO_ENABLED = false;
-
-//crimescene, oculus viewport 25fps
-//crimescene, simulator 45fps
-// after shader optimalisation
-//crimescene, oculus viewport 33fps
-//crimescene, simulator 69fps
-
 
 /*
 Entry point for the application
@@ -73,6 +67,49 @@ int main(int argc, char* argv[])
 	if (application == nullptr)
 		application = new CrimeScene("",&w,g);
 	thread t([&](WiiMoteWrapper * w2){ w2->start(); }, &w);
+	thread logThread([&](WiiMoteWrapper * w3, CrimeScene * c){ 
+		while (c->photo == NULL){}
+		wstring folder = c->photo->outputFolder;
+		CreateDirectory(folder.c_str(), NULL);
+		ofstream output;
+		output.open(string(folder.begin(), folder.end()) + "\\Posities gebruiker.txt", ios::out);
+		struct tm timeinfo;
+		while (w3->continueGame){
+			if (c){
+				if (c->physics){
+					if (c->physics->playerBody){
+						btVector3 trans = c->physics->playerBody->getWorldTransform().getOrigin();
+						//save logs
+						time_t t = time(0);   // get time now						
+						localtime_s(&timeinfo, &t);
+						output << to_string(trans.x()) + "," + to_string(trans.y()) + "," + to_string(trans.z());
+						output << "\t" + to_string(timeinfo.tm_hour) + ":" + to_string(timeinfo.tm_min) + ":" + to_string(timeinfo.tm_sec) + "\n";
+						if (c->justAddedAnItem){
+							output << "Item opgepakt:\t" + c->retrievedObjects.back()->getDescription() + "\n";
+							c->justAddedAnItem = false;
+						}
+					}
+				}
+			}
+			Sleep(1000); 
+		}
+		output.close();
+		if (c->retrievedObjects.size() != 0){
+			ofstream items;
+			items.open(string(folder.begin(), folder.end()) + "\\Items opgepakt.txt", ios::out);
+			for each (MapObject* item in c->retrievedObjects)
+			{
+				items << item->getDescription() + "\n";
+			}
+			items.close();
+		}
+	}, &w, application);
+	thread wiiMoteCommandsThread([&](WiiMoteWrapper * w3, CrimeScene * c){		
+		while (w3->continueGame){
+			c->handleWiiMote(); 
+			Sleep(60); 
+		}
+	}, &w, application);
 	//RestApi::getInstance()->registerAsEnvironment();
 
 	kernel->setApp(application);
@@ -82,6 +119,8 @@ int main(int argc, char* argv[])
 	w.continueGame = false;
 	delete g;
 	t.join();
+	logThread.join();
+	wiiMoteCommandsThread.join();
 	return 0;
 }
 
@@ -288,7 +327,6 @@ Last edit: Bas Rops - 11-06-2014
 */
 void CrimeScene::preFrame(double frameTime, double totalTime)
 {
-	handleWiiMote();
 	clock_t clock_end = clock();
 	GLfloat timeFctr = GLfloat(clock_end - clock_start) / CLOCKS_PER_SEC; // calculate time(s) elapsed since last frame
 	clock_start = clock();
@@ -373,7 +411,7 @@ void CrimeScene::handleInput(float elapsedTime)
 			delete inspectingObject;
 			map->removeMapobject(object);
 			retrievedObjects.push_back(object);
-
+			justAddedAnItem = true;
 			inspectingObject = nullptr;
 		}
 		//Else toggle the polylight
@@ -400,7 +438,8 @@ void CrimeScene::handleInput(float elapsedTime)
 			{
 				//TODO check closest item instead of first
 				Bbox box = object->getBoundingBox(&player->getPlayerMatrix());
-				if (object->getIsInteractable() && box.hasRayCollision(wandRay, 0.0f, 10.0f))
+				//VERANDER OF IN AND ALS HET WERKT
+				if (object->getIsInteractable() || /*&&*/ box.hasRayCollision(wandRay, 0.0f, 10.0f))
 				{
 					inspectingObject = new InspectObject(object, player->getPosition());
 					toolboxPanel->setDescription(object->getDescription());
@@ -510,10 +549,10 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		glDisable(GL_CULL_FACE);
 	}
 	if (FBO_ENABLED){
-		glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
+		
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		glDisable(GL_DEPTH_TEST);
-		glDisable(GL_BLEND);		
+		glDisable(GL_BLEND);
 		ShaderProgram* curFBOShader = fbo.fboShaders[fbo.currentShader];
 		curFBOShader->use();
 		GLuint pass_3O = curFBOShader->getUniformLocation("fboTextureID");
@@ -522,7 +561,8 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		fbo.infoTextureID = fbo.fboTextureID;
 		glUniform1i(pass_3O, 0);
 		glUniform1i(pass_3I, 1);
-		fbo.use();		
+		fbo.use();
+		glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
 	}
 	if (infoForGame->takeScreenshot){
 		infoForGame->takeScreenshot = false;

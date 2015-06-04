@@ -53,12 +53,17 @@ class CrimeScene: public Application
 	glm::vec4 wandPosition;
 	glm::vec3 wandTarget;
 
-	Physics* physics;
+	
 	WiiMoteWrapper * wiimoteData;
 	clock_t clock_start;
 	FrameBufferObject fbo;
 	
 public:
+	Physics* physics;
+	Photo* photo;
+	std::vector<MapObject*> retrievedObjects;
+	bool justAddedAnItem = false;
+	void handleWiiMote();
 	enum class Uniforms
 	{
 		viewProjectionMatrix,
@@ -98,12 +103,12 @@ private:
 	InspectObject* inspectingObject;
 	bool isUsingPolylight;
 	bool isInspectingObject;
-	std::vector<MapObject*> retrievedObjects;
-	Photo* photo;
+	
+	
 	
 	void handleInput(float elapsedTime);
 	void updateInspectingObject();
-	void handleWiiMote();
+	
 
 	void draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelViewMatrix);
 	void drawMap(glm::mat4* projectionMatrix, glm::mat4* viewMatrix);
