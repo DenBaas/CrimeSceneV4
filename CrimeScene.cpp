@@ -287,9 +287,42 @@ void CrimeScene::handleWiiMote()
 	switch (infoForGame->gamemode){
 	case 0:
 		if (buttons.A()){
+			if (inspectingObject)
+			{
+				delete inspectingObject;
+				inspectingObject = nullptr;
+			}
+			//Check which interactable object the ray has collision with. If there is one, set that object as inspectingItem
+			else
+			{
+				std::vector<MapObject*> objects = map->GetMapObjects();
 
+				for each (MapObject* object in objects)
+				{
+					//TODO check closest item instead of first
+					Bbox box = object->getBoundingBox(&player->getPlayerMatrix());
+					if (object->getIsInteractable() && box.hasRayCollision(wandRay, 0.0f, 10.0f))
+					{
+						inspectingObject = new InspectObject(object, player->getPosition());
+						toolboxPanel->setDescription(object->getDescription());
+						break;
+					}
+				}
+			}
 		}
 		if (buttons.B()){
+			if (inspectingObject)
+			{
+				MapObject* object = inspectingObject->getInspectedObject();
+				delete inspectingObject;
+				map->removeMapobject(object);
+				retrievedObjects.push_back(object);
+
+				inspectingObject = nullptr;
+			}
+			//Else toggle the polylight
+			else
+				isUsingPolylight = !isUsingPolylight;
 
 		}
 		break;
@@ -399,6 +432,11 @@ void CrimeScene::handleInput(float elapsedTime)
 		wandRay = Ray(glm::vec3(wandPosition[0], wandPosition[1], wandPosition[2]), glm::vec3(wandDiff[0], wandDiff[1], wandDiff[2]));
 		wandTarget = wandRay.mOrigin + (wandRay.mDir * 100.0f);
 	}
+
+	//wandRay = Ray(glm::vec3(player->getPosition()), glm::vec3(viewMatrix*glm::vec4(1.0)));
+
+
+
 #pragma endregion
 
 #pragma region Left button
