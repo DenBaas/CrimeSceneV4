@@ -11,7 +11,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{E30347A0-74F4-4939-936E-F465C8470C4E}</ProjectGuid>
+    <ProjectGuid>{9B02052B-97B5-4E3C-AF1B-A71451E49E3B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>CrimeSceneV4</RootNamespace>
   </PropertyGroup>
