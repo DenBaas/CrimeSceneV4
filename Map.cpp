@@ -213,8 +213,12 @@ bool Map::load(std::string file, Player* player)
 
 		AssimpModel* model = loadedModels[modelFileName];
 
-		mapObjects.push_back(new MapObject(model, glm::vec3(x, y - PLAYER_HEIGHT, -z), glm::vec3(rotationX, rotationY, rotationZ),
-											scale, interactable, standardVisible, description,mass));
+		MapObject * mapobject = new MapObject(model, glm::vec3(x, y - PLAYER_HEIGHT, -z), glm::vec3(rotationX, rotationY, rotationZ),
+			scale, interactable, standardVisible, description, mass);
+		mapobject->setPhysicsObject(MODEL_FOLDER + category + "/" + modelFileName.substr(0, modelFileName.find_last_of(".")) + "/" + modelFileName.substr(0, modelFileName.find_last_of(".")) + ".json",
+			btVector3(rotationX, rotationY, rotationZ),
+			btVector3(x,y,z));
+		mapObjects.push_back(mapobject);
 	}
 
 

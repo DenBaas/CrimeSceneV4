@@ -6,6 +6,12 @@
 #include <math.h>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
+#include <iostream>
+#include <fstream>
+#include <json\reader.h>
+
+using namespace std;
+using namespace Json;
 
 /*
 Constructor
@@ -23,8 +29,6 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 {
 	this->model = model;
 	this->position = position;
-	if (position.y < 0)
-		position.y = 0;
 	this->rotation = rotation;
 	this->scale = scale;
 	this->interactable = interactable;
@@ -41,37 +45,63 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
+}
 
-	glm::mat4 matrix2 = glm::mat4();
-	matrix2 = glm::translate(matrix2, this->position);
-	matrix2 = glm::rotate(matrix2, glm::radians(90.0f), glm::vec3(1, 0, 0));
-	matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 1, 0));
-	////matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 0, 1));
-	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
-	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
-	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.y), glm::vec3(0, 1, 0));
-	if (mass != -1.0f)
+void MapObject::setPhysicsObject(string fileName, btVector3& rotation, btVector3& position){
+	Json::Reader reader;
+	Json::Value root;
+
+	//Read the file
+	std::string data = "";
+	std::string line;
+	std::ifstream pFile(fileName);
+	if (pFile)
 	{
-		Bbox boundingBox = model->getBoundingBox();		
-		glm::vec3 BboxSize = boundingBox.mMax - boundingBox.mMin;
-		btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x, BboxSize.y, BboxSize.z));
-		btTransform startTransform;
-		startTransform.setIdentity();
-		btVector3 origin(this->position.x , this->position.y , this->position.z);
-		btQuaternion newrotation = btQuaternion(this->rotation.x, this->rotation.y, this->rotation.z, 0);
-		startTransform.setOrigin(origin);
-		//startTransform.setRotation(newrotation);
+		while (!pFile.eof() && pFile.good())
+		{
+			std::getline(pFile, line);
+			data += line + "\n";
+		}
+	}
+	else
+	{
+		return;
+	}
+	//Parse the data as JSON
+	bool parsingSuccessful = reader.parse(data, root);
+	if (!parsingSuccessful)
+	{
+		return;
+	}
+	float y = root["Presentatie4"]["hoogte"].asFloat();
+	float x = root["Presentatie4"]["breedte"].asFloat();
+	float z = root["Presentatie4"]["diepte"].asFloat();
+	float mass = root["Presentatie4"]["mass"].asFloat();
+	dimensionToTranslate = glm::vec3(root["Presentatie4"]["offsetX"].asFloat(), root["Presentatie4"]["offsetY"].asFloat(), root["Presentatie4"]["offsetZ"].asFloat());//
+	
+	btCollisionShape* colShape = new btBoxShape(btVector3(x,y,z));
+	btTransform startTransform;
+	startTransform.setIdentity();
+	btVector3 origin(this->position.x, this->position.y, this->position.z);
+	//rotation is fucked :)   
+	btQuaternion newrotation;
+	btVector3 rotation2 = btVector3(90, 180, 0);
+	rotation += rotation2;
+	newrotation.setEuler(glm::radians(rotation.y()), 
+		glm::radians(rotation.z()),
+		glm::radians(rotation.x()));
+	startTransform.setOrigin(origin);
+	startTransform.setRotation(newrotation);
 
-		btDefaultMotionState* colMotionState = new btDefaultMotionState(startTransform);
-		btVector3 fallInertia;
-		colShape->calculateLocalInertia(mass, fallInertia);
-		btRigidBody::btRigidBodyConstructionInfo cInfo(mass, colMotionState, colShape, fallInertia);		
-		BoundingBoxPhys = new btRigidBody(cInfo);
-		BoundingBoxPhys->setGravity(btVector3(0, -9.8, 0));
-		BoundingBoxPhys->setRestitution(0.0f);
-		BoundingBoxPhys->setFriction(0.0f);
-		firstposition = glm::vec3(origin.x(), origin.y(), origin.z());
-	}	
+	btDefaultMotionState* colMotionState = new btDefaultMotionState();
+	btVector3 fallInertia;
+	colShape->calculateLocalInertia(mass, fallInertia);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, colMotionState, colShape, fallInertia);
+	BoundingBoxPhys = new btRigidBody(cInfo);
+	BoundingBoxPhys->setCenterOfMassTransform(startTransform);
+	BoundingBoxPhys->setGravity(btVector3(0, -9.8, 0));
+	BoundingBoxPhys->setRestitution(0.0f);
+	BoundingBoxPhys->setFriction(0.0f);
 }
 
 /*
@@ -274,7 +304,7 @@ void MapObject::draw(Shader<CrimeScene::Uniforms>* shader)
 			//shader->setUniform(CrimeScene::Uniforms::scale, this->scale); //TODO?
 			shader->setUniform(CrimeScene::Uniforms::objectVisible, this->standardVisible||true);
 		}
-		/*glm::mat4 newMat(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		glm::mat4 newMat(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
 		if (BoundingBoxPhys){
 			btScalar transform[16];
 			BoundingBoxPhys->getWorldTransform().getOpenGLMatrix(transform);
@@ -286,13 +316,19 @@ void MapObject::draw(Shader<CrimeScene::Uniforms>* shader)
 			newMat = glm::mat4(pSource[0], pSource[1], pSource[2], pSource[3],
 				pSource[4], pSource[5], pSource[6], pSource[7],
 				pSource[8], pSource[9], pSource[10], pSource[11],
-				transform[12], transform[13] - boundingsvec.y / 2, transform[14], pSource[15]);
+				transform[12], transform[13], transform[14], pSource[15]);
+			newMat = glm::mat4(transform[0], transform[1], transform[2], transform[3], 
+				transform[4], transform[5], transform[6], transform[7],
+				transform[8], transform[9], transform[10], transform[11],
+				transform[12], transform[13], transform[14], transform[15]);
 			btQuaternion rot = BoundingBoxPhys->getWorldTransform().getRotation();
 			btVector3 axis = rot.getAxis();
-			newMat = glm::rotate(newMat, rot.getAngle(), glm::vec3(axis.x(), axis.y(), axis.z()));
+			//newMat = glm::rotate(newMat,rot.getAngle(), glm::vec3(axis.x(), axis.y(), axis.z()));
+			newMat = glm::translate(newMat, dimensionToTranslate);
+			model->draw(shader, &newMat);
 		}
-		this->model->draw(shader, &newMat);*/
-		model->draw(shader, &modelMatrix);
+		else
+			model->draw(shader, &modelMatrix);
 	}
 }
 

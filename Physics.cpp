@@ -16,11 +16,9 @@ Physics::~Physics()
 	delete playerBody;
 }
 
-int Physics::AddObjectToWorld(btRigidBody* rigidBody){
+void Physics::AddObjectToWorld(btRigidBody* rigidBody){
 	world->addRigidBody(rigidBody);
 	rigidBody->activate();
-	bodysInWorld.push_back(rigidBody);
-	return bodysInWorld.size() - 1;
 }
 
 void Physics::WorldInit(){

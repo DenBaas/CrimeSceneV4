@@ -36,7 +36,7 @@
 #include <thread>
 
 
-const bool FBO_ENABLED = false;
+const bool FBO_ENABLED = true;
 
 /*
 Entry point for the application
@@ -78,16 +78,19 @@ int main(int argc, char* argv[])
 			if (c){
 				if (c->physics){
 					if (c->physics->playerBody){
-						btVector3 trans = c->physics->playerBody->getWorldTransform().getOrigin();
-						//save logs
-						time_t t = time(0);   // get time now						
-						localtime_s(&timeinfo, &t);
-						output << to_string(trans.x()) + "," + to_string(trans.y()) + "," + to_string(trans.z());
-						output << "\t" + to_string(timeinfo.tm_hour) + ":" + to_string(timeinfo.tm_min) + ":" + to_string(timeinfo.tm_sec) + "\n";
-						if (c->justAddedAnItem){
-							output << "Item opgepakt:\t" + c->retrievedObjects.back()->getDescription() + "\n";
-							c->justAddedAnItem = false;
+						try{
+							btVector3 trans = c->physics->playerBody->getWorldTransform().getOrigin();
+							//save logs
+							time_t t = time(0);   // get time now						
+							localtime_s(&timeinfo, &t);
+							output << to_string(trans.x()) + "," + to_string(trans.y()) + "," + to_string(trans.z());
+							output << "\t" + to_string(timeinfo.tm_hour) + ":" + to_string(timeinfo.tm_min) + ":" + to_string(timeinfo.tm_sec) + "\n";
+							if (c->justAddedAnItem){
+								output << "Item opgepakt:\t" + c->retrievedObjects.back()->getDescription() + "\n";
+								c->justAddedAnItem = false;
+							}
 						}
+						catch (exception e){}
 					}
 				}
 			}
@@ -168,6 +171,8 @@ CrimeScene::~CrimeScene()
 	delete physics;
 
 	soundEngine->drop();
+	delete fontTexture;
+	delete shaderFont;
 }
 
 /*
@@ -578,6 +583,7 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		drawMap(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);
 
 	//Draw the toolboxpanel when inspecting an item
+	//drawText("");
 	if (inspectingObject)
 	{
 		glEnable(GL_CULL_FACE);
@@ -587,20 +593,17 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		glDisable(GL_CULL_FACE);
 	}
 	if (FBO_ENABLED){
-		
+		glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
 		glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
 		glDisable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
 		ShaderProgram* curFBOShader = fbo.fboShaders[fbo.currentShader];
 		curFBOShader->use();
-		GLuint pass_3O = curFBOShader->getUniformLocation("fboTextureID");
-		GLuint pass_3I = curFBOShader->getUniformLocation("infoTextureID");
+		GLuint pass_3O = curFBOShader->getUniformLocation("frame_texture");
 		curFBOShader->setUniformMatrix4("modelViewProjectionMatrix", modelViewMatrix);
-		fbo.infoTextureID = fbo.fboTextureID;
+		//fbo.infoTextureID = fontTexture->tid;
 		glUniform1i(pass_3O, 0);
-		glUniform1i(pass_3I, 1);
-		fbo.use();
-		glBindFramebuffer(GL_FRAMEBUFFER, oldFbo);
+		fbo.use();		
 	}
 	if (infoForGame->takeScreenshot){
 		infoForGame->takeScreenshot = false;
@@ -609,6 +612,21 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	}
 }
 
+void CrimeScene::drawText(string text, glm::vec4 color, glm::vec2 offset, glm::mat4 mvp){
+	shaderFont->use();
+	shaderFont->setUniformInt("tex", 0);
+	shaderFont->setUniformVec4("color", color);
+	shaderFont->setUniformVec2("offSet", offset);
+	shaderFont->setUniformMatrix4("PVMmat", mvp);
+	shaderFont->setUniformFloat("texSize", 1.0f);
+	float dx = 10.0f;
+	float dy = 16.0f;
+	for (int i = 0; i < text.length(); ++i) {
+		char c = text.at(i);
+		CharCoords coo;
+	}
+	
+}
 /*
 Draw all objects in the map
 projectionMatrix = the projection matrix to use for drawing
@@ -767,6 +785,10 @@ void CrimeScene::initShaders()
 	shaderPolylight->registerUniform(Uniforms::wandDirection, "wandDirection");
 	shaderPolylight->registerUniform(Uniforms::s_texture, "s_texture");
 
+	shaderFont = new ShaderProgram("data/CrimeSceneV4/Shaders/fontshader.vert", "data/CrimeSceneV4/Shaders/fontshader.frag");
+	shaderFont->link();
+	
+	fontTexture = CaveLib::loadTexture("data/CrimeSceneV4/Textures/VCR_OSD_MONO_1.png", new TextureLoadOptions(1));
 }
 
 /*

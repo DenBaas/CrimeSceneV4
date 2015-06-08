@@ -60,6 +60,7 @@ class CrimeScene: public Application
 	
 public:
 	Physics* physics;
+	cTexture * fontTexture;
 	Photo* photo;
 	std::vector<MapObject*> retrievedObjects;
 	bool justAddedAnItem = false;
@@ -86,6 +87,7 @@ public:
 private:
 	Shader<Uniforms>* shaderDefault;
 	Shader<Uniforms>* shaderPolylight;
+	ShaderProgram *  shaderFont;
 
 	enum class SpotlightConeUniforms
 	{
@@ -115,6 +117,7 @@ private:
 	void drawMapWithPolylight(glm::mat4* projectionMatrix, glm::mat4* viewMatrix);
 	void drawWand();
 	void drawAxis();
+	void drawText(string text, glm::vec4 color, glm::vec2 offset, glm::mat4 mvp);
 
 	void initDevices();
 	void initOpenGL();
@@ -132,4 +135,10 @@ public:
 
 	virtual void init();
 	virtual void preFrame(double frameTime, double totalTime);
-};
+
+	
+}; 
+
+class CharCoords {
+public: int x, y, width, height;
+	};
