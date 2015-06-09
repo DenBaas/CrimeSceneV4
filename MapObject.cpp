@@ -47,7 +47,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
 }
 
-void MapObject::setPhysicsObject(string fileName, btVector3& rotation, btVector3& position){
+void MapObject::setPhysicsObject(string mapName, string fileName, btVector3& rotation, btVector3& position){
 	Json::Reader reader;
 	Json::Value root;
 
@@ -64,20 +64,19 @@ void MapObject::setPhysicsObject(string fileName, btVector3& rotation, btVector3
 		}
 	}
 	else
-	{
 		return;
-	}
 	//Parse the data as JSON
 	bool parsingSuccessful = reader.parse(data, root);
 	if (!parsingSuccessful)
-	{
 		return;
-	}
-	float y = root["Presentatie4"]["hoogte"].asFloat();
-	float x = root["Presentatie4"]["breedte"].asFloat();
-	float z = root["Presentatie4"]["diepte"].asFloat();
-	float mass = root["Presentatie4"]["mass"].asFloat();
-	dimensionToTranslate = glm::vec3(root["Presentatie4"]["offsetX"].asFloat(), root["Presentatie4"]["offsetY"].asFloat(), root["Presentatie4"]["offsetZ"].asFloat());//
+	float y = root["hoogte"].asFloat();
+	float x = root["breedte"].asFloat();
+	float z = root["diepte"].asFloat();
+	float mass = root["massa"].asFloat();
+	bool b = root[mapName]["statischObject"].asBool();
+	if (b)
+		mass = 0.0f;
+	dimensionToTranslate = glm::vec3(root["offsetX"].asFloat(), root["offsetY"].asFloat(), root["offsetZ"].asFloat());
 	
 	btCollisionShape* colShape = new btBoxShape(btVector3(x,y,z));
 	btTransform startTransform;
@@ -85,11 +84,11 @@ void MapObject::setPhysicsObject(string fileName, btVector3& rotation, btVector3
 	btVector3 origin(this->position.x, this->position.y, this->position.z);
 	//rotation is fucked :)   
 	btQuaternion newrotation;
-	btVector3 rotation2 = btVector3(90, 180, 0);
+	btVector3 rotation2 = btVector3(-90, 0, 0);
 	rotation += rotation2;
-	newrotation.setEuler(glm::radians(rotation.y()), 
-		glm::radians(rotation.z()),
-		glm::radians(rotation.x()));
+	newrotation.setEuler(glm::radians(rotation.x()), 
+		glm::radians(rotation.y()),
+		glm::radians(rotation.z()));
 	startTransform.setOrigin(origin);
 	startTransform.setRotation(newrotation);
 

@@ -68,7 +68,7 @@ int main(int argc, char* argv[])
 		application = new CrimeScene("",&w,g);
 	thread t([&](WiiMoteWrapper * w2){ w2->start(); }, &w);
 	thread logThread([&](WiiMoteWrapper * w3, CrimeScene * c){ 
-		while (c->photo == NULL){}
+		while (c->photo == NULL && w3->continueGame){}
 		wstring folder = c->photo->outputFolder;
 		CreateDirectory(folder.c_str(), NULL);
 		ofstream output;
@@ -217,7 +217,7 @@ void CrimeScene::init()
 	toolboxPanel = new ToolboxPanel(this);
 
 	map = new Map(this);
-	if (!map->load("data/CrimeSceneV4/CrimeScenes/" + this->mapFilename, player))
+	if (!map->load(this->mapFilename,"data/CrimeSceneV4/CrimeScenes/" + this->mapFilename, player))
 		consoleExit();
 	irrklang::ISound* music = map->getBackgroundMusic();
 	if (music != nullptr && music->getIsPaused())
