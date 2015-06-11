@@ -6,6 +6,12 @@
 #include <math.h>
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
+#include <iostream>
+#include <fstream>
+#include <json\reader.h>
+
+using namespace std;
+using namespace Json;
 
 /*
 Constructor
@@ -23,7 +29,6 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 {
 	this->model = model;
 	this->position = position;
-	//position.y = 0;
 	this->rotation = rotation;
 	this->scale = scale;
 	this->interactable = interactable;
@@ -40,18 +45,63 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
-	this->mass = mass;
 
-	glm::mat4 matrix2 = glm::mat4();
-	matrix2 = glm::translate(matrix2, this->position);
-	matrix2 = glm::rotate(matrix2, glm::radians(90.0f), glm::vec3(1, 0, 0));
-	matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 1, 0));
-	////matrix2 = glm::rotate(matrix2, glm::radians(180.0f), glm::vec3(0, 0, 1));
-	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
-	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
-	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.y), glm::vec3(0, 1, 0));
+}
 
+void MapObject::setPhysicsObject(string mapName, string fileName, btVector3& rotation, btVector3& position){
+	Json::Reader reader;
+	Json::Value root;
+
+	//Read the file
+	std::string data = "";
+	std::string line;
+	std::ifstream pFile(fileName);
+	if (pFile)
+	{
+		while (!pFile.eof() && pFile.good())
+		{
+			std::getline(pFile, line);
+			data += line + "\n";
+		}
+	}
+	else
+		return;
+	//Parse the data as JSON
+	bool parsingSuccessful = reader.parse(data, root);
+	if (!parsingSuccessful)
+		return;
+	float y = root["hoogte"].asFloat();
+	float x = root["breedte"].asFloat();
+	float z = root["diepte"].asFloat();
+	float mass = root["massa"].asFloat();
+	bool b = root[mapName]["statischObject"].asBool();
+	if (b)
+		mass = 0.0f;
+	dimensionToTranslate = glm::vec3(root["offsetX"].asFloat(), root["offsetY"].asFloat(), root["offsetZ"].asFloat());
 	
+	btCollisionShape* colShape = new btBoxShape(btVector3(x,y,z));
+	btTransform startTransform;
+	startTransform.setIdentity();
+	btVector3 origin(this->position.x, this->position.y, this->position.z);
+	//rotation is fucked :)   
+	btQuaternion newrotation;
+	btVector3 rotation2 = btVector3(-90, 0, 0);
+	rotation += rotation2;
+	newrotation.setEuler(glm::radians(rotation.x()), 
+		glm::radians(rotation.y()),
+		glm::radians(rotation.z()));
+	startTransform.setOrigin(origin);
+	startTransform.setRotation(newrotation);
+
+	btDefaultMotionState* colMotionState = new btDefaultMotionState();
+	btVector3 fallInertia;
+	colShape->calculateLocalInertia(mass, fallInertia);
+	btRigidBody::btRigidBodyConstructionInfo cInfo(mass, colMotionState, colShape, fallInertia);
+	BoundingBoxPhys = new btRigidBody(cInfo);
+	BoundingBoxPhys->setCenterOfMassTransform(startTransform);
+	BoundingBoxPhys->setGravity(btVector3(0, -9.8, 0));
+	BoundingBoxPhys->setRestitution(0.0f);
+	BoundingBoxPhys->setFriction(0.0f);
 }
 
 /*
@@ -252,70 +302,35 @@ void MapObject::draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix)
 		if (shader)
 		{
 			//shader->setUniform(CrimeScene::Uniforms::scale, this->scale); //TODO?
-			shader->setUniform(CrimeScene::Uniforms::objectVisible, this->standardVisible);
+			shader->setUniform(CrimeScene::Uniforms::objectVisible, this->standardVisible||true);
 		}
-		//glm::mat4 newMat(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
-		//if (BoundingBoxPhys){
-		//	btScalar transform[16];
-		//	BoundingBoxPhys->getWorldTransform().getOpenGLMatrix(transform);
-		//	float dArray[16] = { 0.0 };
-		//	const float *pSource = (const float*) glm::value_ptr(modelMatrix);
-		//	for (int i = 0; i < 16; ++i)
-		//		dArray[i] = pSource[i];
-		//	btVector3 trans = BoundingBoxPhys->getCenterOfMassPosition();
-		//	newMat = glm::mat4(pSource[0], pSource[1], pSource[2], pSource[3],
-		//		pSource[4], pSource[5], pSource[6], pSource[7],
-		//		pSource[8], pSource[9], pSource[10], pSource[11],
-		//		//transform[12], transform[13], transform[14], transform[15]);
-		//		trans.x(), trans.y(), trans.z(), transform[15]);
-		//	btQuaternion rot = BoundingBoxPhys->getWorldTransform().getRotation();
-		//	btVector3 axis = rot.getAxis();
-		//	float angle = rot.getAngle();
-		//	//put it to the ground
-		//	newMat = glm::rotate(newMat,angle, glm::vec3(axis.x(),axis.y(),axis.z()));	
-		//}
-		//this->model->draw(shader, &newMat);
-		if (!runOnce)
-		{
-			if (mass != -1.0f)
-			{
-				glm::mat4 matrix = *ViewMatrix;
-				matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1, 0, 0));
-				matrix = glm::rotate(matrix, glm::radians(180.0f), glm::vec3(0, 1, 0));
-				matrix = glm::rotate(matrix, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
-				matrix = glm::rotate(matrix, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
-				matrix = glm::rotate(matrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
-				Bbox boundingBox = this->getBoundingBox(&this->modelMatrix);
-				glm::vec3 BboxSize = boundingBox.mMax - boundingBox.mMin;
-				btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x / 2, BboxSize.y / 2, BboxSize.z / 2));
-				btTransform startTransform;
-				startTransform.setIdentity();
-				btVector3 origin(this->position.x + (BboxSize.x / 2), this->position.y + (BboxSize.y / 2), this->position.z + (BboxSize.z / 2));
-				//btVector3 origin(this->position.x, this->position.y, this->position.z);
-				btQuaternion newrotation = btQuaternion(this->rotation.x, this->rotation.y, this->rotation.z, 0);
-				startTransform.setOrigin(origin);
-				//startTransform.setRotation(newrotation);
-
-				btDefaultMotionState* colMotionState = new btDefaultMotionState(startTransform);
-				btVector3 fallInertia;
-				colShape->calculateLocalInertia(mass, fallInertia);
-				btRigidBody::btRigidBodyConstructionInfo cInfo(
-					mass,
-					colMotionState,
-					colShape,
-					fallInertia
-					);
-				BoundingBoxPhys = new btRigidBody(cInfo);
-				BoundingBoxPhys->setGravity(btVector3(0, -9.8, 0));
-				BoundingBoxPhys->setRestitution(0.0f);
-				BoundingBoxPhys->setFriction(0.0f);
-			}
-			runOnce = true;
+		glm::mat4 newMat(0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0);
+		if (BoundingBoxPhys){
+			btScalar transform[16];
+			BoundingBoxPhys->getWorldTransform().getOpenGLMatrix(transform);
+			float dArray[16] = { 0.0 };
+			const float *pSource = (const float*) glm::value_ptr(modelMatrix);
+			for (int i = 0; i < 16; ++i)
+				dArray[i] = pSource[i];
+			glm::vec3 boundingsvec = model->getBoundingBox().mMax - model->getBoundingBox().mMin;
+			newMat = glm::mat4(pSource[0], pSource[1], pSource[2], pSource[3],
+				pSource[4], pSource[5], pSource[6], pSource[7],
+				pSource[8], pSource[9], pSource[10], pSource[11],
+				transform[12], transform[13], transform[14], pSource[15]);
+			newMat = glm::mat4(transform[0], transform[1], transform[2], transform[3], 
+				transform[4], transform[5], transform[6], transform[7],
+				transform[8], transform[9], transform[10], transform[11],
+				transform[12], transform[13], transform[14], transform[15]);
+			btQuaternion rot = BoundingBoxPhys->getWorldTransform().getRotation();
+			btVector3 axis = rot.getAxis();
+			//newMat = glm::rotate(newMat,rot.getAngle(), glm::vec3(axis.x(), axis.y(), axis.z()));
+			newMat = glm::translate(newMat, dimensionToTranslate);
+			model->draw(shader, &newMat);
 		}
 
+		else
+			model->draw(shader, &modelMatrix);
 
-		model->draw(shader, &modelMatrix);
-		
 	}
 }
 

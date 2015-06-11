@@ -116,7 +116,6 @@
     <ClInclude Include="FrameBufferObject.h" />
     <ClInclude Include="GameInfo.h" />
     <ClInclude Include="InspectObject.h" />
-    <ClInclude Include="ResultsFileIO.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="MapObject.h" />
     <ClInclude Include="MapTiles.h" />
@@ -140,7 +139,6 @@
     <ClCompile Include="FrameBufferObject.cpp" />
     <ClCompile Include="GameInfo.cpp" />
     <ClCompile Include="InspectObject.cpp" />
-    <ClCompile Include="ResultsFileIO.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapObject.cpp" />
     <ClCompile Include="MapTiles.cpp" />

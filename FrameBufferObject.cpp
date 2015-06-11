@@ -47,7 +47,7 @@ void FrameBufferObject::init(int width, int height){
 		{
 			program->link();
 			program->setUniformInt("frame_texture", 0);
-			program->setUniformInt("info_texture", 1);
+			program->setUniformInt("font_texture", 1);
 		}
 	}
 }

@@ -28,6 +28,7 @@ public:
 	~MapObject();
 
 	btRigidBody* BoundingBoxPhys = NULL;
+	glm::vec3 dimensionToTranslate;
 	irrklang::ISound* sound = NULL;
 
 	Bbox getBoundingBox(glm::mat4* viewMatrix);
@@ -51,5 +52,6 @@ public:
 
 	void draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix);
 	void drawBoundingBox(glm::mat4* viewMatrix);
+	void setPhysicsObject(string mapName, string fileName, btVector3& rotation, btVector3& position);
 };
 

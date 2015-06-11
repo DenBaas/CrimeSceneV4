@@ -122,7 +122,7 @@ file = the file of the map to load
 Author: Bas Rops - 25-04-2014
 Last edit: Bas Rops - 10-06-2014
 */
-bool Map::load(std::string file, Player* player)
+bool Map::load(std::string mapFileName, std::string file, Player* player)
 {
 	Json::Value root;
 	Json::Reader reader;
@@ -213,8 +213,12 @@ bool Map::load(std::string file, Player* player)
 
 		AssimpModel* model = loadedModels[modelFileName];
 
-		mapObjects.push_back(new MapObject(model, glm::vec3(x, y - PLAYER_HEIGHT, -z), glm::vec3(rotationX, rotationY, rotationZ),
-											scale, interactable, standardVisible, description,mass));
+		MapObject * mapobject = new MapObject(model, glm::vec3(x, y - PLAYER_HEIGHT, -z), glm::vec3(rotationX, rotationY, rotationZ),
+			scale, interactable, standardVisible, description, mass);
+		mapobject->setPhysicsObject(mapFileName.substr(0,mapFileName.find_first_of(".")),MODEL_FOLDER + category + "/" + modelFileName.substr(0, modelFileName.find_last_of(".")) + "/" + modelFileName.substr(0, modelFileName.find_last_of(".")) + ".json",
+			btVector3(rotationX, rotationY, rotationZ),
+			btVector3(x,y,z));
+		mapObjects.push_back(mapobject);
 	}
 
 

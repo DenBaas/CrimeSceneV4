@@ -31,7 +31,7 @@ public:
 	Map(CrimeScene* crimeScene);
 	~Map();
 
-	bool load(std::string filename, Player* player);
+	bool load(std::string mapFileName, ::string filename, Player* player);
 	void loadCubemap(std::string textureFolder);
 	void removeMapobject(MapObject* mapobject);
 	irrklang::ISound* getBackgroundMusic();
