@@ -229,11 +229,7 @@ void CrimeScene::init()
 	physics->WorldInit();
 	physics->PlayerInit(player->getPosition(), player->getRotation());
 
-	for (int i = 0; i < map->GetMapObjects().size(); i++)
-	{
-		if (map->GetMapObjects()[i]->BoundingBoxPhys != NULL)
-			physics->AddObjectToWorld(map->GetMapObjects()[i]->BoundingBoxPhys);
-	}
+
 
 }
 
@@ -306,7 +302,7 @@ void CrimeScene::handleWiiMote()
 				{
 					//TODO check closest item instead of first
 					Bbox box = object->getBoundingBox(&player->getPlayerMatrix());
-					if (object->getIsInteractable() && box.hasRayCollision(wandRay, 0.0f, 10.0f))
+					if (!object->getIsInteractable() && box.hasRayCollision(wandRay, 0.0f, 10.0f))
 					{
 						inspectingObject = new InspectObject(object, player->getPosition());
 						toolboxPanel->setDescription(object->getDescription());
@@ -321,6 +317,7 @@ void CrimeScene::handleWiiMote()
 				MapObject* object = inspectingObject->getInspectedObject();
 				delete inspectingObject;
 				map->removeMapobject(object);
+				physics->RemoveObjectFromWorld(object->BoundingBoxPhys);
 				retrievedObjects.push_back(object);
 
 				inspectingObject = nullptr;
@@ -579,9 +576,9 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	map->drawCubemap(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);
 
 	if (isUsingPolylight)
-		drawMapWithPolylight(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);
+		drawMapWithPolylight(const_cast<glm::mat4*>(&projectionMatrix), &player->getPlayerMatrix());
 	else
-		drawMap(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);
+		drawMap(const_cast<glm::mat4*>(&projectionMatrix), &player->getPlayerMatrix());
 
 	//Draw the toolboxpanel when inspecting an item
 	//drawText("");
@@ -610,6 +607,16 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		infoForGame->takeScreenshot = false;
 		photo->unbind();
 		photo->generateImage();
+	}
+
+	if (!runOnce)
+	{
+		for (int i = 0; i < map->GetMapObjects().size(); i++)
+		{
+			if (map->GetMapObjects()[i]->BoundingBoxPhys != NULL)
+				physics->AddObjectToWorld(map->GetMapObjects()[i]->BoundingBoxPhys);
+		}
+		runOnce = true;
 	}
 }
 
@@ -642,10 +649,10 @@ void CrimeScene::drawMap(glm::mat4* projectionMatrix, glm::mat4* viewMatrix)
 	//Don't forget to set the modelMatrix when drawing the object!
 
 	if (map != nullptr)
-		map->draw(shaderDefault);
+		map->draw(shaderDefault,&player->getPlayerMatrix());
 
 	if (inspectingObject != nullptr)
-		inspectingObject->draw(shaderDefault);
+		inspectingObject->draw(shaderDefault,&player->getPlayerMatrix());
 }
 
 /*
@@ -667,11 +674,11 @@ void CrimeScene::drawMapWithPolylight(glm::mat4* projectionMatrix, glm::mat4* vi
 	//Don't forget to set the modelMatrix when drawing the object!
 	
 	if (map != nullptr)
-		map->draw(shaderPolylight);
+		map->draw(shaderPolylight,viewMatrix);
 
 	//TODO draw with default shader? Might be better.
 	if (inspectingObject != nullptr)
-		inspectingObject->draw(shaderPolylight);
+		inspectingObject->draw(shaderPolylight,viewMatrix);
 	
 	shaderSpotlightCone->use();
 	shaderSpotlightCone->setUniform(SpotlightConeUniforms::wandModelProjectionMatrix, *projectionMatrix * wandMatrix);

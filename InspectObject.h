@@ -23,7 +23,7 @@ public:
 	InspectObject(MapObject* object, glm::vec4 position);
 	~InspectObject();
 
-	void draw(Shader<CrimeScene::Uniforms>* shader);
+	void draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix);
 	void updateView(glm::mat4 changeMatrix, bool zoomIn, bool zoomOut, Player* player, PositionalDevice* head);
 	MapObject* getInspectedObject();
 };

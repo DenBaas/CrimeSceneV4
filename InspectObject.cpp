@@ -85,11 +85,11 @@ Call once per frame, when an object is being inspected
 Author: Tycho krielaart - 23-5-2014
 Last edit: Bas Rops - 11-06-2014
 */
-void InspectObject::draw(Shader<CrimeScene::Uniforms>* shader)
+void InspectObject::draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix)
 {
 	object->setModelMatrix(inspectMatrix);
 
-	object->draw(shader);
+	object->draw(shader,ViewMatrix);
 
 	object->setModelMatrix(originalModelMatrix);
 }

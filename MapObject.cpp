@@ -45,6 +45,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
+
 }
 
 void MapObject::setPhysicsObject(string mapName, string fileName, btVector3& rotation, btVector3& position){
@@ -294,7 +295,7 @@ Remember to set model-specific uniforms in this method!
 Author: Bas Rops - 25-04-2014
 Last edit: Bas Rops - 23-05-2014
 */
-void MapObject::draw(Shader<CrimeScene::Uniforms>* shader)
+void MapObject::draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix)
 {
 	if (this->model != nullptr)
 	{
@@ -326,8 +327,10 @@ void MapObject::draw(Shader<CrimeScene::Uniforms>* shader)
 			newMat = glm::translate(newMat, dimensionToTranslate);
 			model->draw(shader, &newMat);
 		}
+
 		else
 			model->draw(shader, &modelMatrix);
+
 	}
 }
 

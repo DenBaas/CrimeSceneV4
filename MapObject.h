@@ -20,6 +20,8 @@ class MapObject
 	std::string description;
 
 	glm::mat4 modelMatrix;
+	float mass;
+	bool runOnce = false;
 
 public:
 	MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation, float scale, bool interactable, bool standardVisible, std::string description, float mass);
@@ -48,7 +50,7 @@ public:
 	glm::mat4 getModelMatrix();
 	void setModelMatrix(glm::mat4 newModelMatrix);
 
-	void draw(Shader<CrimeScene::Uniforms>* shader);
+	void draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix);
 	void drawBoundingBox(glm::mat4* viewMatrix);
 	void setPhysicsObject(string mapName, string fileName, btVector3& rotation, btVector3& position);
 };

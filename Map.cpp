@@ -307,7 +307,7 @@ shader = shader to draw the model with
 Author: Bas Rops - 25-04-2014
 Last edit: Bas Rops - 05-06-2014
 */
-void Map::draw(Shader<CrimeScene::Uniforms>* shader)
+void Map::draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix)
 {
 	if (mapTiles != nullptr)
 	{
@@ -328,7 +328,7 @@ void Map::draw(Shader<CrimeScene::Uniforms>* shader)
 
 	for each (MapObject* mapObject in mapObjects)
 	{
-		mapObject->draw(shader);
+		mapObject->draw(shader,ViewMatrix);
 	}
 
 	glDisable(GL_CULL_FACE);

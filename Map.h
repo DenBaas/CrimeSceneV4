@@ -36,7 +36,7 @@ public:
 	void removeMapobject(MapObject* mapobject);
 	irrklang::ISound* getBackgroundMusic();
 	const std::vector<MapObject*> GetMapObjects();
-	void draw(Shader<CrimeScene::Uniforms>* shader);
+	void draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix);
 	void drawCubemap(glm::mat4* projectionMatrix, glm::mat4* viewMatrix);
 	void drawBoundingBoxes(glm::mat4* viewMatrix);
 	std::string getFileFolder(std::string fileName);

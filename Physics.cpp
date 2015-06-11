@@ -21,6 +21,11 @@ void Physics::AddObjectToWorld(btRigidBody* rigidBody){
 	rigidBody->activate();
 }
 
+void Physics::RemoveObjectFromWorld(btRigidBody* rigidBody)
+{
+	world->removeRigidBody(rigidBody);
+}
+
 void Physics::WorldInit(){
 	broadphase = new btDbvtBroadphase();
 	collisionConfiguration = new btDefaultCollisionConfiguration();
