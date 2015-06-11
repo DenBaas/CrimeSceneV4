@@ -84,6 +84,5 @@ void Physics::UpdateWorld(const float timeFctr, btVector3& movement, const float
 	}
 	//
 	world->stepSimulation(timeFctr);
-	//btVector3 b2 = playerBody->getLinearVelocity();
 	//printf("move %f,%f,%f angle %f \n", move.x(), move.y(), move.z(),newRotation);
 }

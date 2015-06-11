@@ -110,7 +110,7 @@ int main(int argc, char* argv[])
 	thread wiiMoteCommandsThread([&](WiiMoteWrapper * w3, CrimeScene * c){		
 		while (w3->continueGame){
 			c->handleWiiMote(); 
-			Sleep(60); 
+			Sleep(30); 
 		}
 	}, &w, application);
 	//RestApi::getInstance()->registerAsEnvironment();
@@ -277,8 +277,8 @@ void CrimeScene::handleWiiMote()
 			infoForGame->gamemode = 0;
 		infoForGame->gamemode = 0;
 	}
-	float r = M_PI/20;
-	float r2 = M_PI / 40;
+	float r = M_PI/40;
+	float r2 = M_PI / 80;
 	if (buttons.Left())
 		infoForGame->rotationHorizontal += r;
 	if (buttons.Right())
@@ -356,6 +356,7 @@ void CrimeScene::handleWiiMote()
 		}
 		break;
 	}
+	printf("gamemode %d \n", infoForGame->gamemode);
 }
 
 /*

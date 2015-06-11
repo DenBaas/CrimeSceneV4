@@ -168,11 +168,6 @@ void Player::update(glm::mat4 hoofdmatrix)
 		//position = glm::translate(position, -glm::vec3(sharedInfo->position));
 
 		position = glm::translate(position, glm::vec3(sharedInfo->position));
-
-
-		glm::vec3 pos = glm::vec3(sharedInfo->position);
-		cout << pos.z << endl;
-
 	}
 }
 
