@@ -21,7 +21,7 @@ class Photo
 public:
 	std::wstring outputFolder = L"Crime scene resultaten";
 
-	Photo::Photo(bool depth = true);
+	Photo::Photo(std::wstring folder, bool depth = true);
 	~Photo();
 
 	void generateImage();

@@ -67,6 +67,14 @@ public:
 	std::vector<MapObject*> retrievedObjects;
 	bool justAddedAnItem = false;
 	void handleWiiMote();
+	void handleWiiMoteRotations();
+	clock_t APressed = clock();
+	clock_t BPressed = clock();
+	clock_t OnePressed = clock();
+	clock_t TwoPressed = clock();
+	clock_t PlusPressed = clock();
+	clock_t MinusPressed = clock();
+	wstring Folder;
 	enum class Uniforms
 	{
 		viewProjectionMatrix,

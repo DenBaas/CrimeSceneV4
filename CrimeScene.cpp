@@ -36,7 +36,7 @@
 #include <thread>
 
 
-const bool FBO_ENABLED = true;
+const bool FBO_ENABLED = false;
 
 /*
 Entry point for the application
@@ -68,8 +68,18 @@ int main(int argc, char* argv[])
 		application = new CrimeScene("",&w,g);
 	thread t([&](WiiMoteWrapper * w2){ w2->start(); }, &w);
 	thread logThread([&](WiiMoteWrapper * w3, CrimeScene * c){ 
-		while (c->photo == NULL && w3->continueGame){}
-		wstring folder = c->photo->outputFolder;
+		while (!w3->continueGame){}
+		time_t     now = time(0);
+		struct tm  tstruct;
+		char       buf[80];
+		localtime_s(&tstruct,&now);
+		// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
+		// for more information about date/time format
+		strftime(buf, sizeof(buf), "%Y %m %d - %H %M %S", &tstruct);
+		std::string timeStarted = buf;
+		c->Folder = L"\\" + std::wstring(timeStarted.begin(), timeStarted.end());
+		wstring folder = L"Crime scene resultaten\\" + c->Folder; 
+
 		CreateDirectory(folder.c_str(), NULL);
 		ofstream output;
 		output.open(string(folder.begin(), folder.end()) + "\\Posities gebruiker.txt", ios::out);
@@ -101,16 +111,15 @@ int main(int argc, char* argv[])
 			ofstream items;
 			items.open(string(folder.begin(), folder.end()) + "\\Items opgepakt.txt", ios::out);
 			for each (MapObject* item in c->retrievedObjects)
-			{
 				items << item->getDescription() + "\n";
-			}
 			items.close();
 		}
 	}, &w, application);
 	thread wiiMoteCommandsThread([&](WiiMoteWrapper * w3, CrimeScene * c){		
 		while (w3->continueGame){
 			c->handleWiiMote(); 
-			Sleep(30); 
+			c->handleWiiMoteRotations();
+			Sleep(30);
 		}
 	}, &w, application);
 	//RestApi::getInstance()->registerAsEnvironment();
@@ -118,12 +127,15 @@ int main(int argc, char* argv[])
 	kernel->setApp(application);
 	kernel->start();
 
-	delete application;
+	
 	w.continueGame = false;
-	delete g;
-	t.join();
+	
+	
 	logThread.join();
 	wiiMoteCommandsThread.join();
+	t.join();
+	delete application;
+	delete g;
 	return 0;
 }
 
@@ -223,7 +235,7 @@ void CrimeScene::init()
 	if (music != nullptr && music->getIsPaused())
 		music->setIsPaused(false);
 
-	photo = new Photo();
+	photo = new Photo(Folder);
 	physics = new Physics();
 	
 	physics->WorldInit();
@@ -254,6 +266,27 @@ irrklang::ISound* CrimeScene::playSound2D(std::string filename, bool loop, bool 
 	}
 }
 
+void CrimeScene::handleWiiMoteRotations(){
+	if (!wiimoteData)
+		return;
+	wiimote_state::buttons * b1 = &wiimoteData->buttonsPressed;
+	if (!b1)
+		return;
+	wiimote_state::buttons buttons = *b1;
+	float r = M_PI / 40;
+	float r2 = M_PI / 80;
+	if (buttons.Left())
+		infoForGame->rotationHorizontal += r;
+	if (buttons.Right())
+		infoForGame->rotationHorizontal -= r;
+	if (buttons.Up() && infoForGame->rotationVertical > -3 * r2){
+		infoForGame->rotationVertical -= r2;
+	}
+	if (buttons.Down() && infoForGame->rotationVertical < 3 * r2){
+		infoForGame->rotationVertical += r2;
+	}
+}
+
 void CrimeScene::handleWiiMote()
 {
 	if (infoForGame->status != 1)
@@ -262,32 +295,25 @@ void CrimeScene::handleWiiMote()
 	if (buttons.Home()){
 
 	}
-	if (buttons.Plus()&& !buttons.Minus()){
+	if (buttons.Plus() && !buttons.Minus() && clock() - PlusPressed > 150){		
+		PlusPressed = clock();
 		infoForGame->gamemode++;
 		infoForGame->gamemode %= infoForGame->MAXMODES;
 		infoForGame->zoomfactor = 0;
 	}
-	if (buttons.Minus() && !buttons.Plus()){
+	if (buttons.Minus() && !buttons.Plus() && clock() - MinusPressed > 150){
+		MinusPressed = clock();
 		infoForGame->gamemode--;
 		if (infoForGame->gamemode < 0)
-			infoForGame->gamemode = 0;
+			infoForGame->gamemode = infoForGame->MAXMODES-1;
 		infoForGame->gamemode = 0;
-	}
-	float r = M_PI/40;
-	float r2 = M_PI / 80;
-	if (buttons.Left())
-		infoForGame->rotationHorizontal += r;
-	if (buttons.Right())
-		infoForGame->rotationHorizontal -= r;
-	if (buttons.Up() && infoForGame->rotationVertical > -3*r2){
-		infoForGame->rotationVertical -= r2;		
-	}
-	if (buttons.Down() && infoForGame->rotationVertical < 3 * r2){
-		infoForGame->rotationVertical += r2;
 	}
 	switch (infoForGame->gamemode){
 	case 0:
 		if (buttons.A()){
+			if (clock() - APressed < 30)
+				break;
+			APressed = clock();
 			if (inspectingObject)
 			{
 				delete inspectingObject;
@@ -297,12 +323,11 @@ void CrimeScene::handleWiiMote()
 			else
 			{
 				std::vector<MapObject*> objects = map->GetMapObjects();
-
 				for each (MapObject* object in objects)
 				{
 					//TODO check closest item instead of first
 					Bbox box = object->getBoundingBox(&player->getPlayerMatrix());
-					if (!object->getIsInteractable() && box.hasRayCollision(wandRay, 0.0f, 10.0f))
+					if (object->getIsInteractable() && box.hasRayCollision(wandRay, 0.0f, 10.0f))
 					{
 						inspectingObject = new InspectObject(object, player->getPosition());
 						toolboxPanel->setDescription(object->getDescription());
@@ -324,9 +349,10 @@ void CrimeScene::handleWiiMote()
 			}
 			//Else toggle the polylight
 			else
-				isUsingPolylight = !isUsingPolylight;
-
+				isUsingPolylight = true;
 		}
+		else
+			isUsingPolylight = false;
 		break;
 	case 1:
 		infoForGame->takeScreenshot = buttons.A();
@@ -353,7 +379,6 @@ void CrimeScene::handleWiiMote()
 		}
 		break;
 	}
-	printf("gamemode %d \n", infoForGame->gamemode);
 }
 
 /*
@@ -576,9 +601,9 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	map->drawCubemap(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);
 
 	if (isUsingPolylight)
-		drawMapWithPolylight(const_cast<glm::mat4*>(&projectionMatrix), &player->getPlayerMatrix());
+		drawMapWithPolylight(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);
 	else
-		drawMap(const_cast<glm::mat4*>(&projectionMatrix), &player->getPlayerMatrix());
+		drawMap(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);
 
 	//Draw the toolboxpanel when inspecting an item
 	//drawText("");
@@ -605,8 +630,9 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	}
 	if (infoForGame->takeScreenshot){
 		infoForGame->takeScreenshot = false;
-		photo->unbind();
 		photo->generateImage();
+		photo->unbind();
+		
 	}
 
 	if (!runOnce)

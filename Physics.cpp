@@ -63,8 +63,6 @@ void Physics::FloorInit(){
 	pBoxShape->calculateLocalInertia(mass, fallInertia);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, m_pMotionState, pBoxShape, fallInertia);
 	floor = new btRigidBody(rbInfo);
-	btQuaternion newRotation = btQuaternion(btVector3(0, 1, 0), 0);
-	floor->getWorldTransform().setRotation(newRotation);
 	world->addCollisionObject(floor);
 }
 

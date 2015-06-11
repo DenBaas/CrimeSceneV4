@@ -2074,7 +2074,7 @@ remove_entry:
 				LeaveCriticalSection(&remote.HIDwriteQueueLock);
 				}
 			}
-		Sleep(1);
+		//Sleep(1); gaf veel errors
 		}
 
 	TRACE(_T("ending HID write thread"));

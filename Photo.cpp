@@ -16,7 +16,7 @@ depth = optional; toggle of depth buffering.
 Author: Ricardo Blommers - 05-2014
 Last edit: <name> - dd-mm-yyyy
 */
-Photo::Photo(bool depth)
+Photo::Photo(std::wstring folder, bool depth)
 {
 	Kernel * kernel = Kernel::getInstance();
 	width = kernel->getWindowWidth();
@@ -25,16 +25,7 @@ Photo::Photo(bool depth)
 	photosMade = 0;
 	this->width = width;
 	this->height = height;
-
-	time_t     now = time(0);
-	struct tm  tstruct;
-	char       buf[80];
-	tstruct = *localtime(&now);
-	// Visit http://en.cppreference.com/w/cpp/chrono/c/strftime
-	// for more information about date/time format
-	strftime(buf, sizeof(buf), "%Y %m %d - %H %M %S", &tstruct);
-	std::string timeStarted = buf;
-	outputFolder = outputFolder + L"\\" + std::wstring(timeStarted.begin(),timeStarted.end());
+	outputFolder = outputFolder + L"\\" + folder;
 }
 
 /*
