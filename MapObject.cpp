@@ -40,6 +40,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
 	this->modelMatrix = glm::rotate(this->modelMatrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
+	this->mass = mass;
 
 	glm::mat4 matrix2 = glm::mat4();
 	matrix2 = glm::translate(matrix2, this->position);
@@ -49,32 +50,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
 	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
 	matrix2 = glm::rotate(matrix2, glm::radians(this->rotation.y), glm::vec3(0, 1, 0));
-	if (mass != -1.0f)
-	{
-		Bbox boundingBox = this->getBoundingBox(&matrix2);
-		glm::vec3 BboxSize = boundingBox.mMax - boundingBox.mMin;
-		btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x/2, BboxSize.y/2, BboxSize.z/2));
-		btTransform startTransform;
-		startTransform.setIdentity();
-		btVector3 origin(this->position.x + (BboxSize.x / 2), this->position.y + (BboxSize.y / 2), this->position.z + (BboxSize.z / 2));
-		btQuaternion newrotation = btQuaternion(this->rotation.x, this->rotation.y, this->rotation.z, 0);
-		startTransform.setOrigin(origin);
-		//startTransform.setRotation(newrotation);
 
-		btDefaultMotionState* colMotionState = new btDefaultMotionState(startTransform);
-		btVector3 fallInertia;
-		colShape->calculateLocalInertia(mass, fallInertia);
-		btRigidBody::btRigidBodyConstructionInfo cInfo(
-			mass,
-			colMotionState,
-			colShape,
-			fallInertia
-			);		
-		BoundingBoxPhys = new btRigidBody(cInfo);
-		BoundingBoxPhys->setGravity(btVector3(0, -9.8, 0));
-		BoundingBoxPhys->setRestitution(0.0f);
-		BoundingBoxPhys->setFriction(0.0f);
-	}
 	
 }
 
@@ -269,7 +245,7 @@ Remember to set model-specific uniforms in this method!
 Author: Bas Rops - 25-04-2014
 Last edit: Bas Rops - 23-05-2014
 */
-void MapObject::draw(Shader<CrimeScene::Uniforms>* shader)
+void MapObject::draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix)
 {
 	if (this->model != nullptr)
 	{
@@ -299,6 +275,45 @@ void MapObject::draw(Shader<CrimeScene::Uniforms>* shader)
 		//	newMat = glm::rotate(newMat,angle, glm::vec3(axis.x(),axis.y(),axis.z()));	
 		//}
 		//this->model->draw(shader, &newMat);
+		if (!runOnce)
+		{
+			if (mass != -1.0f)
+			{
+				glm::mat4 matrix = *ViewMatrix;
+				matrix = glm::rotate(matrix, glm::radians(-90.0f), glm::vec3(1, 0, 0));
+				matrix = glm::rotate(matrix, glm::radians(180.0f), glm::vec3(0, 1, 0));
+				matrix = glm::rotate(matrix, glm::radians(this->rotation.z), glm::vec3(0, 0, 1));
+				matrix = glm::rotate(matrix, glm::radians(this->rotation.x), glm::vec3(1, 0, 0));
+				matrix = glm::rotate(matrix, glm::radians(-this->rotation.y), glm::vec3(0, 1, 0));
+				Bbox boundingBox = this->getBoundingBox(&this->modelMatrix);
+				glm::vec3 BboxSize = boundingBox.mMax - boundingBox.mMin;
+				btCollisionShape* colShape = new btBoxShape(btVector3(BboxSize.x / 2, BboxSize.y / 2, BboxSize.z / 2));
+				btTransform startTransform;
+				startTransform.setIdentity();
+				btVector3 origin(this->position.x + (BboxSize.x / 2), this->position.y + (BboxSize.y / 2), this->position.z + (BboxSize.z / 2));
+				//btVector3 origin(this->position.x, this->position.y, this->position.z);
+				btQuaternion newrotation = btQuaternion(this->rotation.x, this->rotation.y, this->rotation.z, 0);
+				startTransform.setOrigin(origin);
+				//startTransform.setRotation(newrotation);
+
+				btDefaultMotionState* colMotionState = new btDefaultMotionState(startTransform);
+				btVector3 fallInertia;
+				colShape->calculateLocalInertia(mass, fallInertia);
+				btRigidBody::btRigidBodyConstructionInfo cInfo(
+					mass,
+					colMotionState,
+					colShape,
+					fallInertia
+					);
+				BoundingBoxPhys = new btRigidBody(cInfo);
+				BoundingBoxPhys->setGravity(btVector3(0, -9.8, 0));
+				BoundingBoxPhys->setRestitution(0.0f);
+				BoundingBoxPhys->setFriction(0.0f);
+			}
+			runOnce = true;
+		}
+
+
 		model->draw(shader, &modelMatrix);
 		
 	}

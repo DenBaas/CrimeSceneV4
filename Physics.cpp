@@ -23,6 +23,11 @@ int Physics::AddObjectToWorld(btRigidBody* rigidBody){
 	return bodysInWorld.size() - 1;
 }
 
+void Physics::RemoveObjectFromWorld(btRigidBody* rigidBody)
+{
+	world->removeRigidBody(rigidBody);
+}
+
 void Physics::WorldInit(){
 	broadphase = new btDbvtBroadphase();
 	collisionConfiguration = new btDefaultCollisionConfiguration();

@@ -46,6 +46,7 @@ public:
 	void PlayerInit(glm::vec4 position, float rotationY);
 	void WorldInit();
 	void FloorInit();
+	void RemoveObjectFromWorld(btRigidBody* rigidBody);
 	void UpdateWorld(const float timeFctr, btVector3& movement,const float newRotation);
 	int AddObjectToWorld(btRigidBody* rigidBody);
 	

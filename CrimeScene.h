@@ -57,6 +57,8 @@ class CrimeScene: public Application
 	WiiMoteWrapper * wiimoteData;
 	clock_t clock_start;
 	FrameBufferObject fbo;
+
+	bool runOnce = false;
 	
 public:
 	enum class Uniforms
