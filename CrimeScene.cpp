@@ -36,6 +36,7 @@
 #include <thread>
 
 
+
 const bool FBO_ENABLED = false;
 glm::vec3 cameraOrigin;
 glm::vec3 cameraLookat;
@@ -188,8 +189,6 @@ CrimeScene::~CrimeScene()
 	delete physics;
 
 	soundEngine->drop();
-	delete fontTexture;
-	delete shaderFont;
 }
 
 /*
@@ -594,6 +593,7 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	viewMatrix = glm::translate(viewMatrix, glm::vec3(-f.x(), -f.y()-1, -f.z()));
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(0);
+	drawText("mode: " + std::to_string(infoForGame->gamemode));
 	//TODO fix color
 	glPushMatrix();
 	drawWand();
@@ -620,7 +620,7 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		drawMap(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);
 
 	//Draw the toolboxpanel when inspecting an item
-	//drawText("");
+	
 	if (inspectingObject)
 	{
 		glEnable(GL_CULL_FACE);
@@ -642,6 +642,7 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		glUniform1i(pass_3O, 0);
 		fbo.use();		
 	}
+	
 	if (infoForGame->takeScreenshot){
 		infoForGame->takeScreenshot = false;
 		photo->generateImage();
@@ -661,20 +662,20 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	cameraOrigin = glm::vec3(player->getPosition());
 }
 
-void CrimeScene::drawText(string text, glm::vec4 color, glm::vec2 offset, glm::mat4 mvp){
-	shaderFont->use();
-	shaderFont->setUniformInt("tex", 0);
-	shaderFont->setUniformVec4("color", color);
-	shaderFont->setUniformVec2("offSet", offset);
-	shaderFont->setUniformMatrix4("PVMmat", mvp);
-	shaderFont->setUniformFloat("texSize", 1.0f);
-	float dx = 10.0f;
-	float dy = 16.0f;
-	for (int i = 0; i < text.length(); ++i) {
-		char c = text.at(i);
-		CharCoords coo;
-	}
+void CrimeScene::drawText(string text){
+	glPushMatrix();
+
+	char tab2[1024];
+	strncpy_s(tab2, text.c_str(), sizeof(tab2));
+
+	tab2[sizeof(tab2) - 1] = 0;
+	float i = font->getLength(tab2);
+	glTranslatef(-2.6, -1.9, 0);
+	glScalef(0.1, 0.1, 0.1);
+	glColor3f(0, 0, 0);
 	
+	font->render(tab2);
+	glPopMatrix();
 }
 /*
 Draw all objects in the map
@@ -765,7 +766,10 @@ void CrimeScene::initOpenGL()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glActiveTexture(GL_TEXTURE0);
 	
-	this->clearColor = glm::vec4(0.3f, 0.8f, 0.7f, 1.0f);
+	this->clearColor = glm::vec4(0.3f, 0.8f, 0.7f, 1.0f);	
+	font = new cFont("Tahoma");
+	font->render("test");
+	font->generate();
 }
 
 /*
@@ -833,11 +837,6 @@ void CrimeScene::initShaders()
 	shaderPolylight->registerUniform(Uniforms::maxLength, "maxLength");
 	shaderPolylight->registerUniform(Uniforms::wandDirection, "wandDirection");
 	shaderPolylight->registerUniform(Uniforms::s_texture, "s_texture");
-
-	shaderFont = new ShaderProgram("data/CrimeSceneV4/Shaders/fontshader.vert", "data/CrimeSceneV4/Shaders/fontshader.frag");
-	shaderFont->link();
-	
-	fontTexture = CaveLib::loadTexture("data/CrimeSceneV4/Textures/VCR_OSD_MONO_1.png", new TextureLoadOptions(1));
 }
 
 /*

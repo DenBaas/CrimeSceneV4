@@ -20,6 +20,7 @@
 #include "WiiYourself\WiiMoteWrapper.h"
 #include "GameInfo.h"
 #include "FrameBufferObject.h"
+#include <CaveLib\font.h>
 
 class cTexture;
 class cModel;
@@ -59,10 +60,10 @@ class CrimeScene: public Application
 	FrameBufferObject fbo;
 
 	bool runOnce = false;
-	
+	cFont* font;
+
 public:
 	Physics* physics;
-	cTexture * fontTexture;
 	Photo* photo;
 	std::vector<MapObject*> retrievedObjects;
 	bool justAddedAnItem = false;
@@ -97,7 +98,6 @@ public:
 private:
 	Shader<Uniforms>* shaderDefault;
 	Shader<Uniforms>* shaderPolylight;
-	ShaderProgram *  shaderFont;
 
 	enum class SpotlightConeUniforms
 	{
@@ -127,7 +127,7 @@ private:
 	void drawMapWithPolylight(glm::mat4* projectionMatrix, glm::mat4* viewMatrix);
 	void drawWand();
 	void drawAxis();
-	void drawText(string text, glm::vec4 color, glm::vec2 offset, glm::mat4 mvp);
+	void drawText(string text);
 
 	void initDevices();
 	void initOpenGL();
