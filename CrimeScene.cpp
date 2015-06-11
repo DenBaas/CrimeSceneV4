@@ -37,6 +37,11 @@
 
 
 const bool FBO_ENABLED = false;
+glm::vec3 cameraOrigin;
+glm::vec3 cameraLookat;
+
+Ray headRay;
+
 
 /*
 Entry point for the application
@@ -311,7 +316,7 @@ void CrimeScene::handleWiiMote()
 	switch (infoForGame->gamemode){
 	case 0:
 		if (buttons.A()){
-			if (clock() - APressed < 30)
+			if (clock() - APressed < 150)
 				break;
 			APressed = clock();
 			if (inspectingObject)
@@ -505,7 +510,7 @@ void CrimeScene::handleInput(float elapsedTime)
 				//TODO check closest item instead of first
 				Bbox box = object->getBoundingBox(&player->getPlayerMatrix());
 				//VERANDER OF IN AND ALS HET WERKT
-				if (object->getIsInteractable() || /*&&*/ box.hasRayCollision(wandRay, 0.0f, 10.0f))
+				if (object->getIsInteractable() || /*&&*/ box.hasRayCollision(headRay, 0.0f, 10.0f))
 				{
 					inspectingObject = new InspectObject(object, player->getPosition());
 					toolboxPanel->setDescription(object->getDescription());
@@ -524,6 +529,15 @@ void CrimeScene::handleInput(float elapsedTime)
 		}
 		else*/
 			player->update(head.getData());
+
+			glm::mat4 headMatrix = head.getData();
+			glm::vec4 headPosition =  headMatrix * glm::vec4(0, 0, 0, 1);
+			glm::vec4 point = headMatrix * glm::vec4(0, 0, -1, 1);
+			glm::vec4 headDiff = point - headPosition;
+
+			headRay = Ray(glm::vec3(headPosition[0], headPosition[1], headPosition[2]), glm::vec3(headDiff[0], headDiff[1], headDiff[2]));
+
+			cameraOrigin = glm::vec3(player->getPosition());
 #pragma endregion
 
 }
@@ -644,6 +658,7 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		}
 		runOnce = true;
 	}
+	cameraOrigin = glm::vec3(player->getPosition());
 }
 
 void CrimeScene::drawText(string text, glm::vec4 color, glm::vec2 offset, glm::mat4 mvp){
