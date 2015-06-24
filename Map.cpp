@@ -15,6 +15,7 @@
 #include <fstream>
 #include <exception>
 #include <time.h>
+#include <limits>
 
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
@@ -122,7 +123,7 @@ file = the file of the map to load
 Author: Bas Rops - 25-04-2014
 Last edit: Bas Rops - 10-06-2014
 */
-bool Map::load(std::string mapFileName, std::string file, Player* player)
+bool Map::load(std::string mapFileName, std::string file, Player* player, Physics* physics)
 {
 	Json::Value root;
 	Json::Reader reader;
@@ -156,7 +157,7 @@ bool Map::load(std::string mapFileName, std::string file, Player* player)
 #pragma region load tiles
 	//Set the root JSON tiles
 	const Json::Value tiles = root["tiles"];
-
+	float minx = std::numeric_limits<float>::max(), minz = std::numeric_limits<float>::max(), maxx = std::numeric_limits<float>::min(), maxz = std::numeric_limits<float>::min();
 	//Loop through each object in objects and create a MapTile for each
 	for (unsigned int index = 0; index < tiles.size(); ++index)
 	{
@@ -164,13 +165,19 @@ bool Map::load(std::string mapFileName, std::string file, Player* player)
 		float x = tiles[index].get("x", 0.0f).asFloat();
 		float y = tiles[index].get("y", 0.0f).asFloat();
 		float z = tiles[index].get("z", 0.0f).asFloat();
-
+		if (x < minx)
+			minx = x;
+		if (x > maxx)
+			maxx = x;
+		if (z < minz)
+			minz = z;
+		if (z > maxz)
+			maxz = z;
 		if (this->mapTiles == nullptr)
 			this->mapTiles = new MapTiles();
-
 		mapTiles->addTile(TEXTURE_FOLDER + std::string("tiles/") + textureFileName, glm::vec3(x, y - PLAYER_HEIGHT, -z), glm::vec3(1.0f, 0.0f, 1.0f));
 	}
-
+	physics->AddWorldBorders(minx, maxx, minz, maxz);
 	if (this->mapTiles != nullptr)
 		mapTiles->setVBO();
 #pragma endregion

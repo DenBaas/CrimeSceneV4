@@ -82,11 +82,12 @@ void MapObject::setPhysicsObject(string mapName, string fileName, btVector3& rot
 	btCollisionShape* colShape = new btBoxShape(btVector3(x,y,z));
 	btTransform startTransform;
 	startTransform.setIdentity();
-	btVector3 origin(this->position.x, this->position.y, this->position.z);
-	//rotation is fucked :)   
+	btVector3 origin(this->position.x + dimensionToTranslate.x, this->position.y, this->position.z + dimensionToTranslate.z);
+	//rotation is fucked :)
 	btQuaternion newrotation;
 	btVector3 rotation2 = btVector3(-90, 0, 0);
 	rotation2 += rotation;
+	printf("\t%f,%f,%f\n", rotation.x(), rotation.y(), rotation.z());
 	newrotation.setEuler(glm::radians(rotation2.x()), 
 		glm::radians(rotation2.y()),
 		glm::radians(rotation2.z()));
@@ -311,7 +312,6 @@ void MapObject::draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix)
 			const float *pSource = (const float*)glm::value_ptr(modelMatrix);
 			for (int i = 0; i < 16; ++i)
 				dArray[i] = pSource[i];
-			glm::vec3 boundingsvec = model->getBoundingBox().mMax - model->getBoundingBox().mMin;
 			glm::mat4 m2 = glm::mat4(pSource[0], pSource[1], pSource[2], pSource[3],
 				pSource[4], pSource[5], pSource[6], pSource[7],
 				pSource[8], pSource[9], pSource[10], pSource[11],

@@ -105,6 +105,9 @@ int main(int argc, char* argv[])
 								output << "Item opgepakt:\t" + c->retrievedObjects.back()->getDescription() + "\n";
 								c->justAddedAnItem = false;
 							}
+							if (c->infoForGame->takeScreenshot){
+								output << "Foto gemaakt\n";
+							}
 						}
 						catch (exception e){}
 					}
@@ -171,8 +174,6 @@ CrimeScene::~CrimeScene()
 		{
 			std::cout << "- " << object->getDescription() << '\n' << std::endl;
 		}
-		/*InventoryFileIO saveItems;
-		saveItems.save(DataFormat::DEBUG, &retrievedObjects);*/
 		SetForegroundWindow(GetConsoleWindow());
 		std::cout << "Press any key to exit..." << std::endl;
 		_getch();
@@ -231,18 +232,19 @@ void CrimeScene::init()
 	player = new Player();
 
 	toolboxPanel = new ToolboxPanel(this);
-
-	map = new Map(this);
-	if (!map->load(this->mapFilename,"data/CrimeSceneV4/CrimeScenes/" + this->mapFilename, player))
+	physics = new Physics();
+	physics->WorldInit();
+	map = new Map(this); 
+	if (!map->load(this->mapFilename,"data/CrimeSceneV4/CrimeScenes/" + this->mapFilename, player,physics))
 		consoleExit();
 	irrklang::ISound* music = map->getBackgroundMusic();
 	if (music != nullptr && music->getIsPaused())
 		music->setIsPaused(false);
 
 	photo = new Photo(Folder);
-	physics = new Physics();
 	
-	physics->WorldInit();
+	
+	
 	physics->PlayerInit(player->getPosition(), player->getRotation());
 
 
@@ -344,11 +346,12 @@ void CrimeScene::handleWiiMote()
 			if (inspectingObject)
 			{
 				MapObject* object = inspectingObject->getInspectedObject();
+				if (!object)
+					break;
+				retrievedObjects.push_back(object);
 				delete inspectingObject;
 				map->removeMapobject(object);
 				physics->RemoveObjectFromWorld(object->BoundingBoxPhys);
-				retrievedObjects.push_back(object);
-
 				inspectingObject = nullptr;
 			}
 			//Else toggle the polylight
@@ -478,11 +481,16 @@ void CrimeScene::handleInput(float elapsedTime)
 		if (inspectingObject)
 		{
 			MapObject* object = inspectingObject->getInspectedObject();
-			delete inspectingObject;
-			map->removeMapobject(object);
-			retrievedObjects.push_back(object);
-			justAddedAnItem = true;
-			inspectingObject = nullptr;
+			if (object)
+			{
+				delete inspectingObject;
+				map->removeMapobject(object);
+				if (object->BoundingBoxPhys)
+					physics->RemoveObjectFromWorld(object->BoundingBoxPhys);
+				retrievedObjects.push_back(object);
+				justAddedAnItem = true;
+				inspectingObject = nullptr;
+			}
 		}
 		//Else toggle the polylight
 		else
@@ -586,6 +594,7 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	glm::mat4 viewMatrix = modelViewMatrix*player->getPlayerMatrix();
+	inspectobjectMatrix = viewMatrix;
 	viewMatrix = glm::rotate(viewMatrix, -infoForGame->rotationVertical, glm::vec3(1, 0, 0));
 	viewMatrix = glm::rotate(viewMatrix, -infoForGame->rotationHorizontal, glm::vec3(0, 1, 0));
 	
@@ -593,8 +602,9 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	viewMatrix = glm::translate(viewMatrix, glm::vec3(-f.x(), -f.y()-1, -f.z()));
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(0);
-	drawText("mode: " + std::to_string(infoForGame->gamemode));
-	//TODO fix color
+	if (wiimoteData->buttonsPressed.Home())
+		drawText("help:B=polylight", glm::vec4(0,0,0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.1, 0.1, 0.1));
+	drawText("mode: " + std::to_string(infoForGame->gamemode),glm::vec4(0,0,0,1),glm::vec3(-2.5,0,0),glm::vec3(0,0,0),glm::vec3(0.1,0.1,0.1));
 	glPushMatrix();
 	drawWand();
 	glPopMatrix();
@@ -662,18 +672,20 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	cameraOrigin = glm::vec3(player->getPosition());
 }
 
-void CrimeScene::drawText(string text){
+//rotatie is in graden en werkt nog niet echt goed
+void CrimeScene::drawText(string text, glm::vec4 color, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale){
 	glPushMatrix();
 
 	char tab2[1024];
 	strncpy_s(tab2, text.c_str(), sizeof(tab2));
-
 	tab2[sizeof(tab2) - 1] = 0;
 	float i = font->getLength(tab2);
-	glTranslatef(-2.6, -1.9, 0);
-	glScalef(0.1, 0.1, 0.1);
-	glColor3f(0, 0, 0);
-	
+	glTranslatef(position.x,position.y, position.z);
+	glRotatef(rotation.x, 1, 0, 0);
+	glRotatef(rotation.y, 0, 1, 0);
+	glRotatef(rotation.z, 0, 0, 1);
+	glScalef(scale.x, scale.y, scale.z);
+	glColor4f(color.x, color.y, color.z, color.w);	
 	font->render(tab2);
 	glPopMatrix();
 }

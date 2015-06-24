@@ -115,7 +115,7 @@ private:
 	InspectObject* inspectingObject;
 	bool isUsingPolylight;
 	bool isInspectingObject;
-	
+	glm::mat4 inspectobjectMatrix;
 	
 	
 	void handleInput(float elapsedTime);
@@ -127,7 +127,7 @@ private:
 	void drawMapWithPolylight(glm::mat4* projectionMatrix, glm::mat4* viewMatrix);
 	void drawWand();
 	void drawAxis();
-	void drawText(string text);
+	void drawText(string text, glm::vec4 color, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale);
 
 	void initDevices();
 	void initOpenGL();

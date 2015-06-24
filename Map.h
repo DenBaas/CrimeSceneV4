@@ -9,6 +9,7 @@
 #include <glm\glm.hpp>
 
 #include "CrimeScene.h"
+#include "Physics.h"
 
 class Player;
 class MapTiles;
@@ -26,12 +27,11 @@ class Map
 	std::vector<MapObject*> mapObjects;
 	Cubemap* cubemap;
 	MapTiles* mapTiles;
-
 public:
 	Map(CrimeScene* crimeScene);
 	~Map();
 
-	bool load(std::string mapFileName, ::string filename, Player* player);
+	bool load(std::string mapFileName, ::string filename, Player* player, Physics* physics);
 	void loadCubemap(std::string textureFolder);
 	void removeMapobject(MapObject* mapobject);
 	irrklang::ISound* getBackgroundMusic();

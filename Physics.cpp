@@ -14,6 +14,7 @@ Physics::~Physics()
 	delete dispatcher;
 	delete broadphase;
 	delete playerBody;
+	borders.empty();
 }
 
 void Physics::AddObjectToWorld(btRigidBody* rigidBody){
@@ -38,6 +39,30 @@ void Physics::WorldInit(){
 	m_pDebugDrawer->setDebugMode(3);
 	world->setDebugDrawer(m_pDebugDrawer);
 	FloorInit();
+}
+
+void Physics::AddWorldBorders(float xmin, float xmax, float zmin, float zmax){
+	float lengteX = xmax - xmin;
+	float lengteZ = zmax - zmin;
+	btBoxShape * xonder = new btBoxShape(btVector3(lengteX, 100, 0.1));
+	btBoxShape * xboven = new btBoxShape(btVector3(lengteX, 100, 0.1));
+	btBoxShape * zonder = new btBoxShape(btVector3(0.1, 100, lengteZ));
+	btBoxShape * zboven = new btBoxShape(btVector3(0.1, 100, lengteZ));
+	btMotionState* x1 = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(xmin, -30, zmin)));
+	btMotionState* x2 = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(xmax, -30, zmin)));
+	btMotionState* x3 = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(xmax, -30, zmax)));
+	btMotionState* x4 = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(xmin, -30, zmax)));
+
+	borders.push_back(new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(0,x1, xonder,btVector3(0,0,0))));
+	borders.push_back(new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(0, x2, xboven, btVector3(0, 0, 0))));
+	borders.push_back(new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(0, x3, zonder, btVector3(0, 0, 0))));
+	borders.push_back(new btRigidBody(btRigidBody::btRigidBodyConstructionInfo(0, x4, zboven, btVector3(0, 0, 0))));
+	for (btRigidBody * b : borders){
+		world->addCollisionObject(b);
+		btVector3 b2 = b->getWorldTransform().getOrigin();
+		printf("%f %f %f\n", b2.x(), b2.y(), b2.z());
+	}
+	auto a = world->getCollisionObjectArray();
 }
 
 //roationY is in radialen

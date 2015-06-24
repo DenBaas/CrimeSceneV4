@@ -41,6 +41,7 @@ public:
 	btCollisionObject *						level;
 	btRigidBody *							playerBody;
 	btRigidBody *							floor;
+	std::vector<btRigidBody *> borders;
 
 	void PlayerInit(glm::vec4 position, float rotationY);
 	void WorldInit();
@@ -48,7 +49,7 @@ public:
 	void RemoveObjectFromWorld(btRigidBody* rigidBody);
 	void UpdateWorld(const float timeFctr, btVector3& movement,const float newRotation);
 	void AddObjectToWorld(btRigidBody* rigidBody);
-	
+	void AddWorldBorders(float xmin, float xmax, float zmin, float zmax);
 
 private:
 	DebugDrawer * m_pDebugDrawer;
