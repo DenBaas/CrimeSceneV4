@@ -84,7 +84,7 @@ void Physics::FloorInit(){
 	float mass = 0;//kg
 	btVector3 fallInertia;
 	btBoxShape* pBoxShape = new btBoxShape(btVector3(1000, 0.1, 1000));
-	btMotionState* m_pMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-500, -1.5, -500)));
+	btMotionState* m_pMotionState = new btDefaultMotionState(btTransform(btQuaternion(0, 0, 0, 1), btVector3(-500, -1.7, -500)));
 	pBoxShape->calculateLocalInertia(mass, fallInertia);
 	btRigidBody::btRigidBodyConstructionInfo rbInfo(mass, m_pMotionState, pBoxShape, fallInertia);
 	floor = new btRigidBody(rbInfo);
@@ -97,11 +97,10 @@ movement = de vector die wordt vermenigvuldigd met de kracht. het resultaat daar
 newRotation = hoek in radialen om heen te draaien
 */
 void Physics::UpdateWorld(const float timeFctr, btVector3& movement, const float newRotation){
-	float FORCE = 500.0f;//moet worden vervangen door een constante ergens
 	btVector3 move = movement*FORCE*timeFctr;
 	move = move.rotate(btVector3(0, 1, 0), newRotation);
 	playerBody->clearForces();
-	playerBody->applyCentralForce(move);
+	playerBody->applyForce(move, btVector3(0,-0.3,0));
 	playerBody->activate();
 	//dit moet in een tickcallback staan volgens http://www.bulletphysics.org/mediawiki-1.5.8/index.php/Code_Snippets#I_want_to_cap_the_speed_of_my_spaceship
 	btVector3 velocity = playerBody->getLinearVelocity();
@@ -110,7 +109,6 @@ void Physics::UpdateWorld(const float timeFctr, btVector3& movement, const float
 		velocity *= FORCE / speed / 2;
 		playerBody->setLinearVelocity(velocity);
 	}
-	//
 	world->stepSimulation(timeFctr);
 	//printf("move %f,%f,%f angle %f \n", move.x(), move.y(), move.z(),newRotation);
 }

@@ -301,91 +301,52 @@ void CrimeScene::handleWiiMote()
 	if (buttons.Home()){
 
 	}
-	if (buttons.Plus() && !buttons.Minus() && clock() - PlusPressed > 150){		
+	if (buttons.Plus() && clock() - PlusPressed > 150){		
 		PlusPressed = clock();
-		infoForGame->gamemode++;
-		infoForGame->gamemode %= infoForGame->MAXMODES;
-		infoForGame->zoomfactor = 0;
+		infoForGame->takeScreenshot = buttons.A();
 	}
-	if (buttons.Minus() && !buttons.Plus() && clock() - MinusPressed > 150){
-		MinusPressed = clock();
-		infoForGame->gamemode--;
-		if (infoForGame->gamemode < 0)
-			infoForGame->gamemode = infoForGame->MAXMODES-1;
-		infoForGame->gamemode = 0;
-	}
-	switch (infoForGame->gamemode){
-	case 0:
-		if (buttons.A()){
-			if (clock() - APressed < 150)
-				break;
-			APressed = clock();
-			if (inspectingObject)
+	if (buttons.A() && clock() - APressed > 150){
+		APressed = clock();
+		if (inspectingObject)
+		{
+			delete inspectingObject;
+			inspectingObject = nullptr;
+		}
+		//Check which interactable object the ray has collision with. If there is one, set that object as inspectingItem
+		else
+		{
+			std::vector<MapObject*> objects = map->GetMapObjects();
+			for each (MapObject* object in objects)
 			{
-				delete inspectingObject;
-				inspectingObject = nullptr;
-			}
-			//Check which interactable object the ray has collision with. If there is one, set that object as inspectingItem
-			else
-			{
-				std::vector<MapObject*> objects = map->GetMapObjects();
-				for each (MapObject* object in objects)
+				//TODO check closest item instead of first
+				Bbox box = object->getBoundingBox(&player->getPlayerMatrix());
+				if (object->getIsInteractable() && box.hasRayCollision(wandRay, 0.0f, 10.0f))
 				{
-					//TODO check closest item instead of first
-					Bbox box = object->getBoundingBox(&player->getPlayerMatrix());
-					if (object->getIsInteractable() && box.hasRayCollision(wandRay, 0.0f, 10.0f))
-					{
-						inspectingObject = new InspectObject(object, player->getPosition());
-						toolboxPanel->setDescription(object->getDescription());
-						break;
-					}
+					inspectingObject = new InspectObject(object, player->getPosition());
+					toolboxPanel->setDescription(object->getDescription());
+					break;
 				}
 			}
 		}
-		if (buttons.B()){
-			if (inspectingObject)
-			{
-				MapObject* object = inspectingObject->getInspectedObject();
-				if (!object)
-					break;
+	}
+	if (buttons.B()){
+		if (inspectingObject)
+		{
+			MapObject* object = inspectingObject->getInspectedObject();
+			if (object){
 				retrievedObjects.push_back(object);
 				delete inspectingObject;
 				map->removeMapobject(object);
 				physics->RemoveObjectFromWorld(object->BoundingBoxPhys);
 				inspectingObject = nullptr;
 			}
-			//Else toggle the polylight
-			else
-				isUsingPolylight = true;
 		}
+		//Else toggle the polylight
 		else
-			isUsingPolylight = false;
-		break;
-	case 1:
-		infoForGame->takeScreenshot = buttons.A();
-		infoForGame->flashlightEnabled = buttons.B();
-		if (wiimoteData->nunchukInfo.C){
-
-		}
-		if (wiimoteData->nunchukInfo.Z){
-
-		}
-		break;
-	case 2:
-		if (buttons.A()){
-
-		}
-		if (buttons.B()){
-
-		}
-		if (wiimoteData->nunchukInfo.C){
-
-		}
-		if (wiimoteData->nunchukInfo.Z){
-
-		}
-		break;
+			isUsingPolylight = true;
 	}
+	else
+		isUsingPolylight = false;
 }
 
 /*
@@ -602,16 +563,16 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	viewMatrix = glm::translate(viewMatrix, glm::vec3(-f.x(), -f.y()-1, -f.z()));
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(0);
-	if (wiimoteData->buttonsPressed.Home())
+	//niet nodig
+	/*if (wiimoteData->buttonsPressed.Home())
 		drawText("help:B=polylight", glm::vec4(0,0,0, 1), glm::vec3(0, 0, 0), glm::vec3(0, 0, 0), glm::vec3(0.1, 0.1, 0.1));
-	drawText("mode: " + std::to_string(infoForGame->gamemode),glm::vec4(0,0,0,1),glm::vec3(-2.5,0,0),glm::vec3(0,0,0),glm::vec3(0.1,0.1,0.1));
+	drawText("mode: " + std::to_string(infoForGame->gamemode),glm::vec4(0,0,0,1),glm::vec3(-2.5,0,0),glm::vec3(0,0,0),glm::vec3(0.1,0.1,0.1));*/
 	glPushMatrix();
 	drawWand();
 	glPopMatrix();
 	glPushMatrix();
 	drawAxis();
 	glPopMatrix();
-	//return;	
 	float *PhysMatrix = glm::value_ptr(viewMatrix);
 
 	glLoadMatrixf(PhysMatrix);
@@ -657,7 +618,6 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		infoForGame->takeScreenshot = false;
 		photo->generateImage();
 		photo->unbind();
-		
 	}
 
 	if (!runOnce)
@@ -675,7 +635,6 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 //rotatie is in graden en werkt nog niet echt goed
 void CrimeScene::drawText(string text, glm::vec4 color, glm::vec3 position, glm::vec3 rotation, glm::vec3 scale){
 	glPushMatrix();
-
 	char tab2[1024];
 	strncpy_s(tab2, text.c_str(), sizeof(tab2));
 	tab2[sizeof(tab2) - 1] = 0;
@@ -778,7 +737,7 @@ void CrimeScene::initOpenGL()
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glActiveTexture(GL_TEXTURE0);
 	
-	this->clearColor = glm::vec4(0.3f, 0.8f, 0.7f, 1.0f);	
+	this->clearColor = glm::vec4(0,0,0,1);	
 	font = new cFont("Tahoma");
 	font->render("test");
 	font->generate();

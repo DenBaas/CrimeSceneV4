@@ -219,12 +219,10 @@ bool Map::load(std::string mapFileName, std::string file, Player* player, Physic
 		}
 
 		AssimpModel* model = loadedModels[modelFileName];
-
+		//waarom de fuck is het y - PLAYER_HEIGHT? vraag het aan de eerste groep die hieraan werkte :)
 		MapObject * mapobject = new MapObject(model, glm::vec3(x, y - PLAYER_HEIGHT, -z), glm::vec3(rotationX, rotationY, rotationZ),
 			scale, interactable, standardVisible, description, mass);
-		mapobject->setPhysicsObject(mapFileName.substr(0,mapFileName.find_first_of(".")),MODEL_FOLDER + category + "/" + modelFileName.substr(0, modelFileName.find_last_of(".")) + "/" + modelFileName.substr(0, modelFileName.find_last_of(".")) + ".json",
-			btVector3(rotationX, rotationY, rotationZ),
-			btVector3(x,y,z));
+		mapobject->setPhysicsObject(mapFileName.substr(0,mapFileName.find_first_of(".")),MODEL_FOLDER + category + "/" + modelFileName.substr(0, modelFileName.find_last_of(".")) + "/" + modelFileName.substr(0, modelFileName.find_last_of(".")) + ".json");
 		mapObjects.push_back(mapobject);
 	}
 

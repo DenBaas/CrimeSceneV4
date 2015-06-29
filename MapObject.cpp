@@ -48,7 +48,7 @@ MapObject::MapObject(AssimpModel* model, glm::vec3 position, glm::vec3 rotation,
 
 }
 
-void MapObject::setPhysicsObject(string mapName, string fileName, btVector3& rotation, btVector3& position){
+void MapObject::setPhysicsObject(string mapName, string fileName){
 	Json::Reader reader;
 	Json::Value root;
 
@@ -85,12 +85,13 @@ void MapObject::setPhysicsObject(string mapName, string fileName, btVector3& rot
 	btVector3 origin(this->position.x + dimensionToTranslate.x, this->position.y, this->position.z + dimensionToTranslate.z);
 	//rotation is fucked :)
 	btQuaternion newrotation;
-	btVector3 rotation2 = btVector3(-90, 0, 0);
-	rotation2 += rotation;
-	printf("\t%f,%f,%f\n", rotation.x(), rotation.y(), rotation.z());
-	newrotation.setEuler(glm::radians(rotation2.x()), 
-		glm::radians(rotation2.y()),
-		glm::radians(rotation2.z()));
+	glm::vec3 rotation2 = glm::vec3(0, rotation.z, 0);
+	//rotation2 += rotation;
+	printf("\t%f,%f,%f\n", rotation.x, rotation.y, rotation.z);
+	glm::vec3 rotationOnScreen(rotation2.x, rotation2.y, rotation2.z);
+	newrotation.setEuler(glm::radians(rotationOnScreen.y),
+		glm::radians(rotationOnScreen.x),
+		glm::radians(rotationOnScreen.z));
 	startTransform.setOrigin(origin);
 	startTransform.setRotation(newrotation);
 	btDefaultMotionState* colMotionState = new btDefaultMotionState();

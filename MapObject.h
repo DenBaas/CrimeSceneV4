@@ -52,6 +52,6 @@ public:
 
 	void draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix);
 	void drawBoundingBox(glm::mat4* viewMatrix);
-	void setPhysicsObject(string mapName, string fileName, btVector3& rotation, btVector3& position);
+	void setPhysicsObject(string mapName, string fileName);
 };
 

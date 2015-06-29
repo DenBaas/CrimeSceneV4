@@ -31,6 +31,7 @@ class Physics
 public:
 	Physics();
 	~Physics();
+	const float FORCE = 500.0f;
 
 	btBroadphaseInterface*                  broadphase;
 	btDefaultCollisionConfiguration*        collisionConfiguration;
