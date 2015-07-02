@@ -321,7 +321,6 @@ void Map::draw(Shader<CrimeScene::Uniforms>* shader,glm::mat4* ViewMatrix)
 		//shader->setUniform(CrimeScene::Uniforms::scale, 1); //TODO?
 		shader->setUniform(CrimeScene::Uniforms::objectVisible, true);
 		shader->setUniform(CrimeScene::Uniforms::meshModelMatrix, glm::mat4());
-
 		mapTiles->draw(shader);
 	}
 

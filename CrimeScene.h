@@ -39,8 +39,9 @@ class CrimeScene: public Application
 	PositionalDevice head;
 	DigitalDevice leftButton;
 	DigitalDevice RightButton;
-	DigitalDevice PageDownButton;
-	DigitalDevice PageUpButton;
+	//vakkundig uit het project gesloopt
+	//DigitalDevice PageDownButton;
+	//DigitalDevice PageUpButton;
 	PositionalDevice hydraRightNunchuck;
 
 	TwoDimensionDevice hydraLeft;

@@ -478,7 +478,7 @@ void CrimeScene::handleInput(float elapsedTime)
 				//TODO check closest item instead of first
 				Bbox box = object->getBoundingBox(&player->getPlayerMatrix());
 				//VERANDER OF IN AND ALS HET WERKT
-				if (object->getIsInteractable() || /*&&*/ box.hasRayCollision(headRay, 0.0f, 10.0f))
+				if (object->getIsInteractable() && box.hasRayCollision(headRay, 0.0f, 10.0f))
 				{
 					inspectingObject = new InspectObject(object, player->getPosition());
 					toolboxPanel->setDescription(object->getDescription());
@@ -524,10 +524,10 @@ void CrimeScene::updateInspectingObject()
 	mat[3][2] = 1;
 	mat[3][3] = 1;
 
-	bool zoomIn = PageUpButton.getData() == DigitalState::ON;
-	bool zoomOut = PageDownButton.getData() == DigitalState::ON;
+	//bool zoomIn = PageUpButton.getData() == DigitalState::ON;
+	//bool zoomOut = PageDownButton.getData() == DigitalState::ON;
 
-	inspectingObject->updateView(mat, zoomIn, zoomOut, player, &head);
+	inspectingObject->updateView(mat, false, false, player, &head);
 
 	toolboxPanel->updatePosition(&head);
 }
@@ -555,12 +555,13 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 	glm::mat4 viewMatrix = modelViewMatrix*player->getPlayerMatrix();
-	inspectobjectMatrix = viewMatrix;
+	
 	viewMatrix = glm::rotate(viewMatrix, -infoForGame->rotationVertical, glm::vec3(1, 0, 0));
 	viewMatrix = glm::rotate(viewMatrix, -infoForGame->rotationHorizontal, glm::vec3(0, 1, 0));
 	
 	btVector3 f = physics->playerBody->getWorldTransform().getOrigin();
-	viewMatrix = glm::translate(viewMatrix, glm::vec3(-f.x(), -f.y()-1, -f.z()));
+	viewMatrix = glm::translate(viewMatrix, glm::vec3(-f.x(), -f.y()-1.5, -f.z()));
+	inspectobjectMatrix = viewMatrix;
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glUseProgram(0);
 	//niet nodig
@@ -570,18 +571,12 @@ void CrimeScene::draw(const glm::mat4 &projectionMatrix, const glm::mat4 &modelV
 	glPushMatrix();
 	drawWand();
 	glPopMatrix();
-	glPushMatrix();
-	drawAxis();
-	glPopMatrix();
 	float *PhysMatrix = glm::value_ptr(viewMatrix);
-
 	glLoadMatrixf(PhysMatrix);
 	glPushMatrix();
 	glLineWidth(2.0f);
 	physics->world->debugDrawWorld();
 	glPopMatrix();
-	//map->drawBoundingBoxes(&viewMatrix);
-
 	//Draw the map's cubemap
 	map->drawCubemap(const_cast<glm::mat4*>(&projectionMatrix), &viewMatrix);
 
@@ -713,8 +708,8 @@ void CrimeScene::initDevices()
 	head.init("MainUserHead");
 	leftButton.init("LeftButton");
 	RightButton.init("RightButton");
-	PageDownButton.init("KeyPageDown");
-	PageUpButton.init("KeyPageUp");
+	//PageDownButton.init("KeyPageDown");
+	//PageUpButton.init("KeyPageUp");
 
 	hydraRightNunchuck.init("RightNunchuk");
 	hydraLeft.init("LeftJoystick");

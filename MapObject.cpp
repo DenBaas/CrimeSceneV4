@@ -83,11 +83,9 @@ void MapObject::setPhysicsObject(string mapName, string fileName){
 	btTransform startTransform;
 	startTransform.setIdentity();
 	btVector3 origin(this->position.x + dimensionToTranslate.x, this->position.y, this->position.z + dimensionToTranslate.z);
-	//rotation is fucked :)
+	//rotation is fucked :) but works now
 	btQuaternion newrotation;
 	glm::vec3 rotation2 = glm::vec3(0, rotation.z, 0);
-	//rotation2 += rotation;
-	printf("\t%f,%f,%f\n", rotation.x, rotation.y, rotation.z);
 	glm::vec3 rotationOnScreen(rotation2.x, rotation2.y, rotation2.z);
 	newrotation.setEuler(glm::radians(rotationOnScreen.y),
 		glm::radians(rotationOnScreen.x),
